@@ -217,11 +217,19 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   display:none;
   align-items:center;justify-content:center;
   padding:var(--spacing-29);
-  background:rgba(34,43,28,.94);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  /* Opaque on purpose. A backdrop-filter here re-blurs the whole screen on every
+     frame of video playback, which is what drags the framerate down. */
+  background:#222B1C;
 }
 .lightbox[data-open="true"]{display:flex;}
-.lightbox-inner{width:min(1200px,100%);max-height:100%;display:flex;flex-direction:column;gap:var(--spacing-20);}
+.lightbox-inner{
+  width:min(1600px,100%);
+  max-height:100%;
+  display:flex;flex-direction:column;gap:var(--spacing-20);
+}
+/* Keep the 16:9 stage as large as the window allows — YouTube picks its
+   streaming quality partly from the player's rendered size. */
+.lightbox-stage{max-height:calc(100vh - 200px);margin-inline:auto;width:100%;}
 .lightbox-stage{
   position:relative;width:100%;aspect-ratio:16/9;
   background:#000;border:var(--stroke) solid rgba(229,217,182,.45);
@@ -451,6 +459,13 @@ function renderIndex(){
     img.loading = 'lazy';
     img.alt = w.alt || w.title || '';
     img.src = w.poster || posterFor(w);
+    if(!w.poster && w.type === 'youtube'){
+      let step = 0;
+      img.onerror = () => {
+        if(++step < YT_SIZES.length) img.src = ytThumb(w.src, step);
+        else { img.onerror = null; img.src = MEDIA_DIR + '/placeholder.svg'; }
+      };
+    }
     btn.appendChild(img);
 
     const label = document.createElement('span');
@@ -478,8 +493,15 @@ function renderIndex(){
 
 /* YouTube gives us a free poster if none was exported */
 function posterFor(w){
-  if(w.type === 'youtube' && w.src) return 'https://i.ytimg.com/vi/' + w.src + '/hqdefault.jpg';
+  if(w.type === 'youtube' && w.src) return ytThumb(w.src, 0);
   return MEDIA_DIR + '/placeholder.svg';
+}
+
+/* Not every upload has a maxres still, so walk down the sizes until one loads.
+   maxres 1280x720 -> sd 640x480 -> hq 480x360 */
+const YT_SIZES = ['maxresdefault','sddefault','hqdefault'];
+function ytThumb(id, step){
+  return 'https://i.ytimg.com/vi/' + id + '/' + YT_SIZES[step] + '.jpg';
 }
 
 /* ---------- Lightbox ---------- */

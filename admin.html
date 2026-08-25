@@ -200,10 +200,10 @@ function capturePoster(file){
     v.onseeked = () => {
       clearTimeout(bail);
       const c = document.createElement('canvas');
-      c.width = 1280;
-      c.height = Math.round(1280 * (v.videoHeight/v.videoWidth || 0.5625));
+      c.width = 1920;
+      c.height = Math.round(1920 * (v.videoHeight/v.videoWidth || 0.5625));
       c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-      c.toBlob(b => { URL.revokeObjectURL(v.src); resolve(b); }, 'image/jpeg', .82);
+      c.toBlob(b => { URL.revokeObjectURL(v.src); resolve(b); }, 'image/jpeg', .92);
     };
     v.onerror = () => { clearTimeout(bail); resolve(null); };
   });
@@ -258,7 +258,7 @@ const $list = document.getElementById('list');
 function previewSrc(it){
   if(it.posterBlob) return URL.createObjectURL(it.posterBlob);
   if(it.type === 'image' && it.blob) return URL.createObjectURL(it.blob);
-  if(it.type === 'youtube') return 'https://i.ytimg.com/vi/' + it.src + '/hqdefault.jpg';
+  if(it.type === 'youtube') return 'https://i.ytimg.com/vi/' + it.src + '/maxresdefault.jpg';
   return '';
 }
 
