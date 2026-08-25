@@ -1,23 +1,117 @@
 {
   "works": [
     {
+      "id": "w_0hpr6y7",
+      "title": "UBE Media - Intern Showcase",
+      "kind": "",
+      "year": "2025",
+      "categories": [
+        "graphics"
+      ],
+      "type": "image",
+      "src": "Assets/ube-media-intern-showcase.webp",
+      "aspect": 1,
+      "order": 1,
+      "poster": "Assets/ube-media-intern-showcase.webp"
+    },
+    {
+      "id": "w_0fu0mhr",
+      "title": "UBE Media - Holy Week Campaign",
+      "kind": "",
+      "year": "2026",
+      "categories": [
+        "graphics"
+      ],
+      "type": "image",
+      "src": "Assets/ube-media-holy-week-campaign-01.webp",
+      "aspect": 1,
+      "order": 2,
+      "poster": "Assets/ube-media-holy-week-campaign-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/ube-media-holy-week-campaign-01.webp",
+          "poster": "Assets/ube-media-holy-week-campaign-01.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-holy-week-campaign-02.webp",
+          "poster": "Assets/ube-media-holy-week-campaign-02.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-holy-week-campaign-03.webp",
+          "poster": "Assets/ube-media-holy-week-campaign-03.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-holy-week-campaign-04.webp",
+          "poster": "Assets/ube-media-holy-week-campaign-04.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-holy-week-campaign-05.webp",
+          "poster": "Assets/ube-media-holy-week-campaign-05.webp",
+          "aspect": 1
+        }
+      ]
+    },
+    {
+      "id": "w_fj4ei9q",
+      "title": "UBE Media - Service ",
+      "kind": "",
+      "year": "2025",
+      "categories": [
+        "graphics"
+      ],
+      "type": "image",
+      "src": "Assets/ube-media-service-01.webp",
+      "aspect": 1,
+      "order": 3,
+      "poster": "Assets/ube-media-service-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/ube-media-service-01.webp",
+          "poster": "Assets/ube-media-service-01.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-service-02.webp",
+          "poster": "Assets/ube-media-service-02.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-service-03.webp",
+          "poster": "Assets/ube-media-service-03.webp",
+          "aspect": 1
+        }
+      ]
+    },
+    {
       "id": "w_b0htysf",
       "title": "Yukos",
-      "kind": "Music Video",
+      "kind": "",
       "year": "2024",
       "categories": [
         "music",
         "video"
       ],
       "type": "youtube",
+      "src": "gPr8PrXYaQ0",
       "aspect": null,
-      "order": 1,
-      "src": "gPr8PrXYaQ0"
+      "order": 4
     },
     {
       "id": "w_az4u8j6",
       "title": "Plus 63",
-      "kind": "Video",
+      "kind": "",
       "year": "2025",
       "categories": [
         "video",
@@ -26,23 +120,9 @@
         "music"
       ],
       "type": "youtube",
+      "src": "wT15qy6ZNW0",
       "aspect": null,
-      "order": 2,
-      "src": "wT15qy6ZNW0"
-    },
-    {
-      "id": "w_0hpr6y7",
-      "title": "UBEM - Intern Showcase",
-      "kind": "Graphics",
-      "year": "2025",
-      "categories": [
-        "graphics"
-      ],
-      "type": "image",
-      "aspect": 1,
-      "order": 3,
-      "src": "Assets/ubem-intern-showcase.webp",
-      "poster": "Assets/ubem-intern-showcase.webp"
+      "order": 5
     }
   ]
 }
