@@ -176,6 +176,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   display:block;
   width:100%;
   grid-column:span 2;          /* landscape default — full width */
+  align-self:start;            /* without this, grid stretch overrides aspect-ratio */
   /* Set per piece from its real dimensions. 3/2 is only the fallback for
      older entries that predate aspect capture. */
   aspect-ratio:var(--ar, 3/2);
@@ -188,8 +189,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 }
 .thumb.is-hidden{display:none;}
 /* Square and portrait — half width, two to a row */
+/* Square and portrait pieces pair up. Both take an identical 1:1 slot so the
+   two halves of a row are always the same height, and the artwork sits inside
+   it whole — letterboxed rather than cropped. */
 .thumb--half{
   grid-column:span 1;
+  aspect-ratio:1 / 1;
   border-right:var(--stroke) solid rgba(229,217,182,.45);
 }
 .thumb--half .thumb-label{font-size:.82em;}
@@ -204,6 +209,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   transition:opacity .3s ease;
   background:var(--color-deep);
 }
+/* A square piece in a square slot fills it exactly, so these bands only
+   appear on odd ratios — and then they read as the page, not as a gap. */
+.thumb--half .canvas{background:var(--color-deep);}
 .thumb::after{
   content:"";
   position:absolute;inset:0;
@@ -424,6 +432,21 @@ const PLAYABLE = ['youtube','vimeo','video'];
 const AR_MIN = 0.66, AR_MAX = 2.4;
 /* Anything wider than this gets a full-width row of its own */
 const WIDE_AT = 1.2;
+
+/* Put a tile in the right slot from a real width/height ratio.
+   Called once from the manifest hint, then again when the image actually
+   loads — so pieces added before the studio measured anything still land
+   correctly instead of guessing 3:2 and cropping. */
+function applyShape(btn, ar){
+  if(!ar || !isFinite(ar)) return;
+  if(ar < WIDE_AT){
+    btn.classList.add('thumb--half');
+    btn.style.removeProperty('--ar');        // the 1:1 slot rule takes over
+  }else{
+    btn.classList.remove('thumb--half');
+    btn.style.setProperty('--ar', String(Math.min(AR_MAX, ar)));
+  }
+}
 function clampAR(a, type){
   const n = Number(a);
   if(!n || !isFinite(n)) return PLAYABLE.includes(type) ? 16/9 : 3/2;
@@ -536,9 +559,7 @@ function renderIndex(){
     btn.className = 'thumb';
     btn.type = 'button';
     const first = w._slides[0];
-    btn.style.setProperty('--ar', String(first.aspect));
-    /* Below this ratio a piece is square-ish or portrait, so it pairs up */
-    if(first.aspect < WIDE_AT) btn.classList.add('thumb--half');
+    applyShape(btn, first.aspect);          // hint from the manifest, to avoid a jump
     btn.setAttribute('aria-label', 'Open ' + w.title);
 
     const img = document.createElement('img');
@@ -553,6 +574,11 @@ function renderIndex(){
         else { img.onerror = null; img.src = MEDIA_DIR + '/placeholder.svg'; }
       };
     }
+    /* The image itself is the source of truth */
+    img.addEventListener('load', () => {
+      if(img.naturalWidth && img.naturalHeight)
+        applyShape(btn, img.naturalWidth / img.naturalHeight);
+    });
     btn.appendChild(img);
 
     const label = document.createElement('span');
