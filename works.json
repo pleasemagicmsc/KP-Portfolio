@@ -1,15 +1,17 @@
 {
   "works": [
     {
-      "id": "w_sample1",
-      "title": "Replace me",
-      "kind": "Sample",
-      "year": "2026",
-      "categories": ["graphics", "branding"],
-      "type": "image",
-      "src": "Assets/placeholder.svg",
-      "poster": "Assets/placeholder.svg",
-      "order": 1
+      "id": "w_b0htysf",
+      "title": "Yukos - Music Video",
+      "kind": "Video",
+      "year": "2024",
+      "categories": [
+        "music",
+        "video"
+      ],
+      "type": "youtube",
+      "order": 1,
+      "src": "gPr8PrXYaQ0"
     }
   ]
 }
