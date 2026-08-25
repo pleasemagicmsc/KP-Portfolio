@@ -246,6 +246,22 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .lightbox-title{font-size:var(--text-body);}
 .lightbox-sub{font-size:var(--text-body);opacity:var(--dim);}
 .lightbox-nav{display:flex;gap:var(--spacing-7);}
+.lightbox-dots{display:flex;gap:8px;align-items:center;}
+.dot{
+  width:9px;height:9px;padding:0;border-radius:var(--radius-full);
+  border:1px solid var(--color-sand);background:transparent;cursor:pointer;
+  transition:background-color .15s;
+}
+.dot.on{background:var(--color-ember);border-color:var(--color-ember);}
+.dot:hover{border-color:var(--color-ember);}
+/* Page count marker on a multi-slide tile */
+.thumb-pages{
+  position:absolute;top:var(--spacing-20);right:var(--spacing-20);z-index:2;
+  background:rgba(64,81,59,.45);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  font-size:.72em;
+}
+.thumb:hover .thumb-pages{background:var(--color-ember);border-color:var(--color-ember);}
 
 /* ============================================================
    FOOTER
@@ -342,6 +358,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
         <span class="lightbox-title" id="lbTitle"></span>
         <span class="lightbox-sub" id="lbSub"></span>
       </div>
+      <div class="lightbox-dots" id="lbDots"></div>
       <div class="lightbox-nav">
         <button class="pill" id="lbPrev">Previous</button>
         <button class="pill" id="lbNext">Next</button>
@@ -381,10 +398,24 @@ const PLAYABLE = ['youtube','vimeo','video'];
 /* Aspect = width / height. Clamped so one extreme piece can't swallow the
    column: nothing narrower than 2:3 portrait or wider than 21:9. */
 const AR_MIN = 0.66, AR_MAX = 2.4;
-function aspectOf(w){
-  const a = Number(w.aspect);
-  if(!a || !isFinite(a)) return PLAYABLE.includes(w.type) ? 16/9 : 3/2;
-  return Math.min(AR_MAX, Math.max(AR_MIN, a));
+function clampAR(a, type){
+  const n = Number(a);
+  if(!n || !isFinite(n)) return PLAYABLE.includes(type) ? 16/9 : 3/2;
+  return Math.min(AR_MAX, Math.max(AR_MIN, n));
+}
+
+/* A piece is always a list of slides. Single-image entries become a list of
+   one, so nothing downstream needs to care which it is. */
+function slidesOf(w){
+  if(Array.isArray(w.slides) && w.slides.length){
+    return w.slides.map(sl => ({
+      type: sl.type || 'image',
+      src: sl.src,
+      poster: sl.poster,
+      aspect: clampAR(sl.aspect, sl.type || 'image')
+    }));
+  }
+  return [{ type:w.type, src:w.src, poster:w.poster, aspect:clampAR(w.aspect, w.type) }];
 }
 
 /* Folder holding posters and self-hosted video.
@@ -407,6 +438,7 @@ async function load(){
     if(!res.ok) throw new Error(res.status);
     const data = await res.json();
     WORKS = (data.works || []).slice().sort((a,b)=>(a.order??999)-(b.order??999));
+    WORKS.forEach(w => { w._slides = slidesOf(w); });
     renderFilters();
     apply('all');
   }catch(err){
@@ -440,6 +472,16 @@ function renderFilters(){
   });
 }
 
+/* Every slide of every visible piece, in order — so Previous/Next walks
+   through pages inside a piece and then rolls on to the next piece. */
+let reel = [];
+function buildReel(){
+  reel = [];
+  visible.forEach((w, wi) => {
+    w._slides.forEach((sl, si) => reel.push({ w, sl, wi, si, of: w._slides.length }));
+  });
+}
+
 function apply(id){
   activeFilter = id;
   $filters.querySelectorAll('[data-filter]').forEach(p => {
@@ -448,6 +490,7 @@ function apply(id){
     p.setAttribute('aria-pressed', String(on));
   });
   visible = id === 'all' ? WORKS : WORKS.filter(w => (w.categories||[]).includes(id));
+  buildReel();
   renderIndex();
   $index.scrollTop = 0;
 }
@@ -466,15 +509,16 @@ function renderIndex(){
     const btn = document.createElement('button');
     btn.className = 'thumb';
     btn.type = 'button';
-    btn.style.setProperty('--ar', String(aspectOf(w)));
+    const first = w._slides[0];
+    btn.style.setProperty('--ar', String(first.aspect));
     btn.setAttribute('aria-label', 'Open ' + w.title);
 
     const img = document.createElement('img');
     img.className = 'canvas';
     img.loading = 'lazy';
     img.alt = w.alt || w.title || '';
-    img.src = w.poster || posterFor(w);
-    if(!w.poster && w.type === 'youtube'){
+    img.src = first.poster || (first.type === 'youtube' ? posterFor(w) : first.src) || posterFor(w);
+    if(!first.poster && first.type === 'youtube'){
       let step = 0;
       img.onerror = () => {
         if(++step < YT_SIZES.length) img.src = ytThumb(w.src, step);
@@ -488,14 +532,20 @@ function renderIndex(){
     label.textContent = (w.kind ? w.kind + ' — ' : '') + w.title;
     btn.appendChild(label);
 
-    if(PLAYABLE.includes(w.type)){
+    if(PLAYABLE.includes(first.type)){
       const play = document.createElement('span');
       play.className = 'thumb-play';
       play.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l16 9-16 9z"/></svg>';
       btn.appendChild(play);
     }
+    if(w._slides.length > 1){
+      const pages = document.createElement('span');
+      pages.className = 'pill thumb-pages';
+      pages.textContent = w._slides.length + ' pages';
+      btn.appendChild(pages);
+    }
 
-    btn.addEventListener('click', () => open(i));
+    btn.addEventListener('click', () => open(reel.findIndex(r => r.wi === i)));
     $index.appendChild(btn);
   });
 
@@ -525,29 +575,52 @@ const $stage = document.getElementById('stage');
 let current = -1;
 
 function open(i){
+  if(i < 0 || !reel.length) return;
   current = i;
-  lastFocus = document.activeElement;
-  const w = visible[i];
-  $stage.style.setProperty('--ar', String(aspectOf(w)));
-  $stage.innerHTML = embed(w);
+  if($lb.dataset.open !== 'true') lastFocus = document.activeElement;
+  const { w, sl, si, of } = reel[i];
+
+  $stage.style.setProperty('--ar', String(sl.aspect));
+  $stage.innerHTML = embed(sl, w);
+
   document.getElementById('lbTitle').textContent = (w.kind ? w.kind + ' — ' : '') + w.title;
-  document.getElementById('lbSub').textContent =
-    [w.year, (w.categories||[]).map(labelOf).join(', ')].filter(Boolean).join('  ·  ');
+  document.getElementById('lbSub').textContent = [
+    of > 1 ? 'Page ' + (si + 1) + ' of ' + of : '',
+    w.year,
+    (w.categories||[]).map(labelOf).join(', ')
+  ].filter(Boolean).join('  ·  ');
+
+  renderDots(w, si, i);
   $lb.dataset.open = 'true';
   document.getElementById('lbClose').focus();
 }
 
-function embed(w){
-  if(w.type === 'youtube')
-    return '<iframe src="https://www.youtube.com/embed/' + w.src +
+/* Page markers, only when a piece actually has pages */
+function renderDots(w, si, reelIndex){
+  const box = document.getElementById('lbDots');
+  box.innerHTML = '';
+  if(w._slides.length < 2) return;
+  w._slides.forEach((_, k) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (k === si ? ' on' : '');
+    d.type = 'button';
+    d.setAttribute('aria-label', 'Page ' + (k + 1));
+    d.onclick = () => open(reelIndex - si + k);
+    box.appendChild(d);
+  });
+}
+
+function embed(sl, w){
+  if(sl.type === 'youtube')
+    return '<iframe src="https://www.youtube.com/embed/' + sl.src +
            '?autoplay=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-  if(w.type === 'vimeo')
-    return '<iframe src="https://player.vimeo.com/video/' + w.src +
+  if(sl.type === 'vimeo')
+    return '<iframe src="https://player.vimeo.com/video/' + sl.src +
            '?autoplay=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-  if(w.type === 'video')
-    return '<video src="' + w.src + '" controls autoplay playsinline preload="metadata"' +
-           (w.poster ? ' poster="' + w.poster + '"' : '') + '></video>';
-  return '<img src="' + (w.src || w.poster) + '" alt="' + (w.alt || w.title || '') + '">';
+  if(sl.type === 'video')
+    return '<video src="' + sl.src + '" controls autoplay playsinline preload="metadata"' +
+           (sl.poster ? ' poster="' + sl.poster + '"' : '') + '></video>';
+  return '<img src="' + (sl.src || sl.poster) + '" alt="' + (w.title || '') + '">';
 }
 
 function labelOf(id){
@@ -561,9 +634,20 @@ function close(){
   if(lastFocus) lastFocus.focus();
 }
 function step(d){
-  if(!visible.length) return;
-  open((current + d + visible.length) % visible.length);
+  if(!reel.length) return;
+  open((current + d + reel.length) % reel.length);
 }
+
+/* Swipe through pages on touch */
+let tx = 0, ty = 0;
+$stage.addEventListener('touchstart', e => {
+  tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
+}, { passive:true });
+$stage.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
+}, { passive:true });
 
 document.getElementById('lbClose').addEventListener('click', close);
 document.getElementById('lbPrev').addEventListener('click', () => step(-1));

@@ -65,6 +65,24 @@ input:focus,select:focus{outline:2px solid var(--ember);outline-offset:1px;}
 .handle{cursor:grab;text-align:center;opacity:.5;font-size:20px;user-select:none;}
 .path{font-size:12.5px;opacity:.6;word-break:break-all;}
 .warn{color:var(--ember);font-size:13px;}
+.strip-head{font-size:12.5px;opacity:.6;margin-bottom:6px;}
+.strip{display:flex;gap:8px;flex-wrap:wrap;}
+.cell{position:relative;width:78px;}
+.cell img,.cell .ph{
+  width:78px;height:58px;object-fit:cover;border-radius:6px;
+  background:#000;display:block;border:1px solid rgba(229,217,182,.25);
+}
+.cell .n{
+  position:absolute;top:3px;left:5px;font-size:11px;
+  background:rgba(34,43,28,.8);padding:1px 5px;border-radius:20px;
+}
+.cellbar{display:flex;justify-content:space-between;margin-top:3px;}
+.cellbar button{
+  background:none;border:0;color:var(--sand);opacity:.6;
+  cursor:pointer;font-size:14px;line-height:1;padding:2px 5px;
+}
+.cellbar button:hover{opacity:1;color:var(--ember);}
+
 #out{
   width:100%;min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
   background:var(--deep);color:var(--sand);border:1px solid rgba(229,217,182,.3);
@@ -92,6 +110,7 @@ code{background:rgba(229,217,182,.12);padding:2px 6px;border-radius:5px;font-siz
     <button class="pill ghost" id="addLink">Add a video link</button>
   </div>
   <input type="file" id="file" multiple accept="video/*,image/*" hidden>
+    <input type="file" id="pagefile" multiple accept="video/*,image/*" hidden>
 </div>
 
 <hr>
@@ -247,34 +266,70 @@ function capturePoster(file){
 }
 
 /* ---------- adding ---------- */
-async function addFiles(files){
-  for(const f of [...files]){
-    const isVideo = f.type.startsWith('video');
-    const item = {
-      id: uid(),
-      title: f.name.replace(/\.[^.]+$/,''),
-      kind: isVideo ? 'Video' : 'Graphics',
-      year: String(new Date().getFullYear()),
-      categories: isVideo ? ['video'] : ['graphics'],
-      type: isVideo ? 'video' : 'image',
-      blob: f,
-      fileExt: ext(f.name),
-      posterBlob: null,
-      aspect: null,
-      optBlob: null,      // WebP version
-      optimise: true      // per-piece toggle
-    };
-    items.push(item);
-    render();
-    if(isVideo){
-      const cap = await capturePoster(f);
-      if(cap){ item.posterBlob = cap.blob; item.aspect = cap.aspect; }
-      render(); save();
-    }else{
-      item.aspect = await imageAspect(f);
-      render();
-      const o = await optimise(f);
-      if(o){ item.optBlob = o.blob; item.optW = o.w; item.optH = o.h; }
+/* Build one slide from a dropped file, measuring and compressing it */
+async function makeSlide(f){
+  const isVideo = f.type.startsWith('video');
+  const sl = {
+    type: isVideo ? 'video' : 'image',
+    blob: f,
+    fileExt: ext(f.name),
+    posterBlob: null,
+    aspect: null,
+    optBlob: null,
+    optimise: true
+  };
+  if(isVideo){
+    const cap = await capturePoster(f);
+    if(cap){ sl.posterBlob = cap.blob; sl.aspect = cap.aspect; }
+  }else{
+    sl.aspect = await imageAspect(f);
+    const o = await optimise(f);
+    if(o){ sl.optBlob = o.blob; sl.optW = o.w; sl.optH = o.h; }
+  }
+  return sl;
+}
+
+function newItem(name, isVideo){
+  return {
+    id: uid(),
+    title: name.replace(/\.[^.]+$/,''),
+    kind: isVideo ? 'Video' : 'Graphics',
+    year: String(new Date().getFullYear()),
+    categories: isVideo ? ['video'] : ['graphics'],
+    slides: []
+  };
+}
+
+/* Dropping several files at once: one piece with pages, or separate pieces */
+async function addFiles(files, intoId){
+  const list = [...files];
+  if(!list.length) return;
+
+  if(intoId){
+    const it = items.find(x => x.id === intoId);
+    if(!it) return;
+    for(const f of list){ it.slides.push(await makeSlide(f)); render(); save(); }
+    return;
+  }
+
+  let asSet = false;
+  if(list.length > 1){
+    asSet = confirm(
+      list.length + ' files.\n\n' +
+      'OK — add as ONE piece with ' + list.length + ' pages (a magazine, a carousel, a set of variants).\n' +
+      'Cancel — add as ' + list.length + ' separate pieces.'
+    );
+  }
+
+  if(asSet){
+    const it = newItem(list[0].name, list[0].type.startsWith('video'));
+    items.push(it); render();
+    for(const f of list){ it.slides.push(await makeSlide(f)); render(); save(); }
+  }else{
+    for(const f of list){
+      const it = newItem(f.name, f.type.startsWith('video'));
+      items.push(it); render();
+      it.slides.push(await makeSlide(f));
       render(); save();
     }
   }
@@ -289,25 +344,35 @@ function addLink(){
   items.push({
     id: uid(),
     title: 'Untitled',
-    kind: y ? 'Video' : 'Video',
+    kind: 'Video',
     year: String(new Date().getFullYear()),
     categories: ['video'],
-    type: y ? 'youtube' : 'vimeo',
-    src: y || v,
-    blob: null, posterBlob: null,
-    aspect: 16/9
+    slides: [{
+      type: y ? 'youtube' : 'vimeo',
+      src: y || v,
+      blob: null, posterBlob: null, optBlob: null,
+      aspect: 16/9
+    }]
   });
   render(); save();
 }
 
 /* ---------- render ---------- */
 const $list = document.getElementById('list');
+const pageInput = document.getElementById('pagefile');
 
-function previewSrc(it){
-  if(it.posterBlob) return URL.createObjectURL(it.posterBlob);
-  if(it.type === 'image' && it.blob) return URL.createObjectURL(it.blob);
-  if(it.type === 'youtube') return 'https://i.ytimg.com/vi/' + it.src + '/maxresdefault.jpg';
+function previewSrc(sl){
+  if(sl.posterBlob) return URL.createObjectURL(sl.posterBlob);
+  if(sl.optBlob)    return URL.createObjectURL(sl.optBlob);
+  if(sl.type === 'image' && sl.blob) return URL.createObjectURL(sl.blob);
+  if(sl.type === 'youtube') return 'https://i.ytimg.com/vi/' + sl.src + '/maxresdefault.jpg';
   return '';
+}
+
+function shapeOf(sl){
+  if(!sl.aspect) return 'measuring…';
+  const w = sl.aspect > 1.2 ? 'landscape' : sl.aspect < 0.85 ? 'portrait' : 'square';
+  return w + ' · ' + sl.aspect.toFixed(2) + ':1';
 }
 
 function render(){
@@ -315,7 +380,8 @@ function render(){
   $list.innerHTML = '';
 
   if(!items.length){
-    $list.innerHTML = '<p class="lede">Nothing added yet. Drop a file above to start.</p>';
+    $list.innerHTML = '<p class="lede">Nothing added yet. Drop a file above to start. ' +
+      'Drop several at once to build a piece with pages.</p>';
     document.getElementById('out').textContent = JSON.stringify({ works: [] }, null, 2);
     return;
   }
@@ -324,9 +390,10 @@ function render(){
     const row = document.createElement('div');
     row.className = 'row';
     row.draggable = true;
-    row.dataset.i = i;
 
-    const src = previewSrc(it);
+    const first = it.slides[0];
+    const src = first ? previewSrc(first) : '';
+
     row.innerHTML =
       (src ? '<img class="thumb" src="' + src + '">'
            : '<div class="thumb" style="display:grid;place-items:center;opacity:.5;font-size:13px">no preview</div>') +
@@ -337,16 +404,18 @@ function render(){
           '<label class="f" style="max-width:110px">Year<input data-k="year" value="' + esc(it.year||'') + '"></label>' +
         '</div>' +
         '<div class="cats"></div>' +
+        '<div class="pages"></div>' +
         '<div class="path"></div>' +
       '</div>' +
       '<div class="side">' +
         '<div class="handle" title="Drag to reorder">⣿</div>' +
+        '<button class="pill sm ghost" data-a="pages">Add pages</button>' +
         '<button class="pill sm ghost" data-a="up">Move up</button>' +
         '<button class="pill sm ghost" data-a="down">Move down</button>' +
-        '<button class="pill sm ghost" data-a="opt">Optimise</button>' +
         '<button class="pill sm ghost" data-a="del">Remove</button>' +
       '</div>';
 
+    /* categories */
     const cats = row.querySelector('.cats');
     CATEGORIES.forEach(c => {
       const b = document.createElement('button');
@@ -360,45 +429,65 @@ function render(){
       cats.appendChild(b);
     });
 
-    const p = row.querySelector('.path');
-    const shape = it.aspect
-      ? (it.aspect > 1.2 ? 'landscape' : it.aspect < 0.85 ? 'portrait' : 'square')
-        + ' &middot; ' + it.aspect.toFixed(2) + ':1'
-      : 'shape not detected — tile falls back to 3:2';
-    if(it.blob){
-      const base = slug(it.title);
-      const out = outputOf(it);
-      const saved = it.optBlob ? Math.round((1 - it.optBlob.size / it.blob.size) * 100) : 0;
-      p.innerHTML =
-        'exports as <code>' + MEDIA_DIR + '/' + base + '.' + out.ext + '</code>' +
-        (it.posterBlob ? ' + <code>' + MEDIA_DIR + '/' + base + '-poster.jpg</code>' : '') +
-        '<br>' + shape +
-        '<br>' + mb(it.blob.size) +
-        (it.optBlob
-          ? (it.optimise
-              ? ' &rarr; <b>' + mb(it.optBlob.size) + '</b> as WebP, ' + saved + '% smaller'
-                + (it.optW ? ' &middot; ' + it.optW + '&times;' + it.optH : '')
-              : ' <span class="warn">— sending the original, ' + mb(it.optBlob.size) + ' available</span>')
-          : '') +
-        (out.blob && out.blob.size > 20*1048576
-          ? ' <span class="warn">— large for git, consider a video link</span>' : '');
-    }else{
-      p.innerHTML = it.type + ' &middot; <code>' + it.src + '</code><br>' + shape;
+    /* page strip — only meaningful once there is more than one */
+    const strip = row.querySelector('.pages');
+    if(it.slides.length > 1){
+      const head = document.createElement('div');
+      head.className = 'strip-head';
+      head.textContent = it.slides.length + ' pages — first one is the tile';
+      strip.appendChild(head);
+      const wrap = document.createElement('div');
+      wrap.className = 'strip';
+      it.slides.forEach((sl, k) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const ps = previewSrc(sl);
+        cell.innerHTML =
+          (ps ? '<img src="' + ps + '">' : '<div class="ph"></div>') +
+          '<span class="n">' + (k+1) + '</span>' +
+          '<div class="cellbar">' +
+            '<button title="Move left">‹</button>' +
+            '<button title="Remove page">×</button>' +
+            '<button title="Move right">›</button>' +
+          '</div>';
+        const [L, X, R] = cell.querySelectorAll('.cellbar button');
+        L.onclick = () => { if(k>0){ [it.slides[k-1],it.slides[k]]=[it.slides[k],it.slides[k-1]]; render(); save(); } };
+        R.onclick = () => { if(k<it.slides.length-1){ [it.slides[k+1],it.slides[k]]=[it.slides[k],it.slides[k+1]]; render(); save(); } };
+        X.onclick = () => { it.slides.splice(k,1); render(); save(); };
+        wrap.appendChild(cell);
+      });
+      strip.appendChild(wrap);
     }
 
+    /* size + shape readout */
+    const p = row.querySelector('.path');
+    if(!first){ p.textContent = 'no media yet'; }
+    else if(first.blob){
+      const totalIn  = it.slides.reduce((a,sl)=>a+(sl.blob?sl.blob.size:0),0);
+      const totalOut = it.slides.reduce((a,sl)=>a+(sl.blob?outputOf(sl).blob.size:0),0);
+      const saved = totalIn ? Math.round((1 - totalOut/totalIn) * 100) : 0;
+      p.innerHTML =
+        'exports as <code>' + MEDIA_DIR + '/' + slideName(it,0) + '.' + outputOf(first).ext + '</code>' +
+        (it.slides.length > 1 ? ' … <code>' + slideName(it, it.slides.length-1) + '</code>' : '') +
+        '<br>' + shapeOf(first) +
+        '<br>' + mb(totalIn) + ' &rarr; <b>' + mb(totalOut) + '</b>' +
+        (saved > 0 ? ', ' + saved + '% smaller' : '') +
+        (totalOut > 20*1048576 ? ' <span class="warn">— large for git, consider a video link</span>' : '');
+    }else{
+      p.innerHTML = first.type + ' &middot; <code>' + first.src + '</code><br>' + shapeOf(first);
+    }
+
+    /* inputs */
     row.querySelectorAll('input').forEach(inp => {
-      inp.oninput = () => { it[inp.dataset.k] = inp.value; save(); refreshOut(); if(inp.dataset.k==='title') p.dispatchEvent(new Event('x')); };
+      inp.oninput = () => { it[inp.dataset.k] = inp.value; save(); refreshOut(); };
       inp.onblur = render;
     });
-    const optBtn = row.querySelector('[data-a="opt"]');
-    if(optBtn){
-      if(!it.optBlob){ optBtn.style.display = 'none'; }
-      else optBtn.className = 'pill sm' + (it.optimise ? ' on' : ' ghost');
-    }
+
+    /* side buttons */
     row.querySelectorAll('[data-a]').forEach(b => {
       b.onclick = () => {
         const a = b.dataset.a;
-        if(a === 'opt'){ it.optimise = !it.optimise; }
+        if(a === 'pages'){ pageInput.dataset.into = it.id; pageInput.click(); return; }
         if(a === 'del'){ items.splice(i,1); }
         if(a === 'up' && i > 0){ [items[i-1], items[i]] = [items[i], items[i-1]]; }
         if(a === 'down' && i < items.length-1){ [items[i+1], items[i]] = [items[i], items[i+1]]; }
@@ -406,6 +495,7 @@ function render(){
       };
     });
 
+    /* row reordering */
     row.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); row.classList.add('drag'); });
     row.addEventListener('dragend',   () => row.classList.remove('drag'));
     row.addEventListener('dragover',  e => e.preventDefault());
@@ -426,32 +516,55 @@ function render(){
 
 const esc = s => String(s||'').replace(/"/g,'&quot;');
 
-/* Which blob and extension a piece exports as */
-function outputOf(it){
-  if(it.optBlob && it.optimise) return { blob: it.optBlob, ext: 'webp' };
-  return { blob: it.blob, ext: it.fileExt };
+/* Which blob and extension a slide exports as */
+function outputOf(sl){
+  if(sl.optBlob && sl.optimise) return { blob: sl.optBlob, ext: 'webp' };
+  return { blob: sl.blob, ext: sl.fileExt };
 }
 const mb = b => (b/1048576).toFixed(b < 1048576 ? 2 : 1) + ' MB';
+const pad = n => String(n).padStart(2,'0');
+
+/* Single-slide pieces keep a clean name. Sets get numbered pages. */
+function slideName(it, k){
+  const base = slug(it.title);
+  return it.slides.length > 1 ? base + '-' + pad(k + 1) : base;
+}
+
+function slidePath(it, sl, k){
+  if(sl.blob) return MEDIA_DIR + '/' + slideName(it, k) + '.' + outputOf(sl).ext;
+  return sl.src;                                   // a hosted video id
+}
+function posterPath(it, sl, k){
+  if(sl.posterBlob) return MEDIA_DIR + '/' + slideName(it, k) + '-poster.jpg';
+  if(sl.type === 'image' && sl.blob) return slidePath(it, sl, k);
+  return undefined;
+}
 
 function manifest(){
   return {
     works: items.map((it, i) => {
-      const base = slug(it.title);
-      const o = {
+      const slides = it.slides.map((sl, k) => {
+        const o = { type: sl.type, src: slidePath(it, sl, k) };
+        const p = posterPath(it, sl, k);
+        if(p) o.poster = p;
+        o.aspect = sl.aspect ? Math.round(sl.aspect * 10000) / 10000 : null;
+        return o;
+      });
+      const first = slides[0] || {};
+      const out = {
         id: it.id,
         title: it.title,
         kind: it.kind,
         year: it.year,
         categories: it.categories,
-        type: it.type,
-        aspect: it.aspect ? Math.round(it.aspect * 10000) / 10000 : null,
+        type: first.type,
+        src: first.src,
+        aspect: first.aspect,
         order: i + 1
       };
-      if(it.blob) o.src = MEDIA_DIR + '/' + base + '.' + outputOf(it).ext;
-      else o.src = it.src;
-      if(it.posterBlob) o.poster = MEDIA_DIR + '/' + base + '-poster.jpg';
-      else if(it.type === 'image' && it.blob) o.poster = o.src;
-      return o;
+      if(first.poster) out.poster = first.poster;
+      if(slides.length > 1) out.slides = slides;   // only when it's a real set
+      return out;
     })
   };
 }
@@ -472,17 +585,17 @@ document.getElementById('exportJson').onclick = () =>
   download(new Blob([JSON.stringify(manifest(), null, 2)], { type:'application/json' }), 'works.json');
 
 document.getElementById('exportMedia').onclick = async () => {
-  const withFiles = items.filter(it => it.blob);
-  if(!withFiles.length){ alert('No uploaded files to rename — links do not need one.'); return; }
-  for(const it of withFiles){
-    const base = slug(it.title);
-    const out = outputOf(it);
-    download(out.blob, base + '.' + out.ext);
+  const jobs = [];
+  items.forEach(it => it.slides.forEach((sl, k) => {
+    if(!sl.blob) return;                            // hosted video, nothing to save
+    const out = outputOf(sl);
+    jobs.push([out.blob, slideName(it, k) + '.' + out.ext]);
+    if(sl.posterBlob) jobs.push([sl.posterBlob, slideName(it, k) + '-poster.jpg']);
+  }));
+  if(!jobs.length){ alert('No uploaded files to save — hosted video links do not need any.'); return; }
+  for(const [blob, name] of jobs){
+    download(blob, name);
     await new Promise(r => setTimeout(r, 400));
-    if(it.posterBlob){
-      download(it.posterBlob, base + '-poster.jpg');
-      await new Promise(r => setTimeout(r, 400));
-    }
   }
 };
 
@@ -497,7 +610,13 @@ const drop = document.getElementById('drop');
 const fileInput = document.getElementById('file');
 document.getElementById('pick').onclick = () => fileInput.click();
 document.getElementById('addLink').onclick = addLink;
-fileInput.onchange = e => addFiles(e.target.files);
+fileInput.onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+
+pageInput.onchange = e => {
+  addFiles(e.target.files, pageInput.dataset.into);
+  pageInput.dataset.into = '';
+  e.target.value = '';
+};
 
 ['dragenter','dragover'].forEach(ev =>
   drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('hot'); }));
