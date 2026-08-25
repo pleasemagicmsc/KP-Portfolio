@@ -185,12 +185,43 @@ async function save(){
     d.transaction('state','readwrite').objectStore('state').put(items,'items');
   }catch(e){ console.warn('save failed', e); }
 }
+/* Pieces saved before slides existed are one flat record. Fold each into a
+   single-slide list so old work in the browser keeps opening. */
+function migrate(list){
+  let changed = false;
+  const out = (list || []).map(it => {
+    if(Array.isArray(it.slides)) return it;
+    changed = true;
+    return {
+      id: it.id || uid(),
+      title: it.title || 'Untitled',
+      kind: it.kind || 'Graphics',
+      year: it.year || String(new Date().getFullYear()),
+      categories: it.categories || [],
+      slides: [{
+        type: it.type || (it.blob ? 'image' : 'youtube'),
+        src: it.src,
+        blob: it.blob || null,
+        fileExt: it.fileExt || null,
+        posterBlob: it.posterBlob || null,
+        optBlob: it.optBlob || null,
+        optimise: it.optimise !== false,
+        aspect: it.aspect || null,
+        optW: it.optW, optH: it.optH
+      }]
+    };
+  });
+  if(changed) console.info('Studio: migrated ' + out.length + ' piece(s) to the slide format.');
+  return out;
+}
+
 async function restore(){
   try{
     const d = await db();
     const req = d.transaction('state','readonly').objectStore('state').get('items');
-    req.onsuccess = () => { items = req.result || []; render(); };
-  }catch(e){ render(); }
+    req.onsuccess = () => { items = migrate(req.result); render(); save(); };
+    req.onerror   = () => { items = []; render(); };
+  }catch(e){ items = []; render(); }
 }
 
 /* ---------- helpers ---------- */
@@ -387,6 +418,8 @@ function render(){
   }
 
   items.forEach((it, i) => {
+    if(!Array.isArray(it.slides)) it.slides = [];
+
     const row = document.createElement('div');
     row.className = 'row';
     row.draggable = true;
@@ -551,6 +584,7 @@ function manifest(){
         return o;
       });
       const first = slides[0] || {};
+      if(!slides.length) console.warn('Piece "' + it.title + '" has no media.');
       const out = {
         id: it.id,
         title: it.title,
