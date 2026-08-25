@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Name — Multimedia &amp; Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Source+Serif+4:ital,wght@1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   RULES: all text is Sand. Gradients use Forest / Moss / Sand only.
+          Ember is a solid accent — never in a gradient.
+   ============================================================ */
+:root{
+  --color-forest:#40513B;   /* main colour — the ground */
+  --color-moss:#628141;     /* mid green — gradient partner */
+  --color-sand:#E5D9B6;     /* ALL text, primary strokes, gradient light end */
+  --color-ember:#E67E22;    /* solid accent only — active states */
+
+  --color-deep:#33412F;     /* forest, one step down — recessed ground */
+
+  /* Gradients — Forest / Moss / Sand only, no Ember */
+  --grad-primary:linear-gradient(135deg, var(--color-forest) 0%, var(--color-moss) 100%);
+  --grad-rule:linear-gradient(90deg, var(--color-forest) 0%, var(--color-moss) 40%, rgba(229,217,182,.8) 100%);
+
+  --font-lausanne:'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-victor-serif:'Source Serif 4', ui-serif, Georgia, "Times New Roman", serif;
+
+  --text-display:72px;
+  --leading-display:1;
+  --text-body:24px;
+  --leading-body:1.2;
+
+  --spacing-7:7px;  --spacing-8:8px;  --spacing-10:10px;
+  --spacing-12:12px;--spacing-13:13px;--spacing-20:20px;--spacing-29:29px;
+
+  --radius-full:120px;
+  --section-gap:64px;
+  --footer-h:58px;
+  --stroke:1px;
+
+  /* Hierarchy is carried by opacity, not by a second text colour */
+  --dim:.68;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--color-forest);
+  color:var(--color-sand);
+  font-family:var(--font-lausanne);
+  font-weight:400;
+  font-size:var(--text-body);
+  line-height:var(--leading-body);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+/* Ambient depth — moss only */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background:
+    radial-gradient(120% 90% at 8% 105%, rgba(98,129,65,.32) 0%, rgba(98,129,65,0) 60%),
+    radial-gradient(90% 70% at 100% 0%, rgba(98,129,65,.22) 0%, rgba(98,129,65,0) 60%);
+}
+h1,h2,h3,p,figure{margin:0;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;}
+::selection{background:var(--color-ember);color:var(--color-sand);}
+:focus-visible{outline:2px solid var(--color-ember);outline-offset:4px;}
+
+/* ============================================================
+   SPLIT STAGE
+   ============================================================ */
+.split{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:40% 60%;
+  height:calc(100vh - var(--footer-h));
+  height:calc(100dvh - var(--footer-h));
+}
+.column{overflow-y:auto;scrollbar-width:none;}
+.column::-webkit-scrollbar{display:none;}
+
+.control{
+  padding:var(--spacing-29) var(--spacing-29) 80px;
+  border-right:var(--stroke) solid rgba(229,217,182,.45);
+}
+.index{padding:0;background:linear-gradient(180deg, rgba(51,65,47,.55) 0%, rgba(51,65,47,0) 40%);}
+
+/* ============================================================
+   TYPE — every text element is Sand
+   ============================================================ */
+.display{
+  font-size:clamp(40px, 5.2vw, var(--text-display));
+  line-height:var(--leading-display);
+  font-weight:400;
+  letter-spacing:normal;
+  color:var(--color-sand);
+}
+.body{font-size:var(--text-body);line-height:var(--leading-body);max-width:42ch;color:var(--color-sand);}
+.serif{
+  font-family:var(--font-victor-serif);
+  font-style:italic;
+  font-size:var(--text-body);
+  line-height:var(--leading-body);
+  color:var(--color-sand);
+  opacity:var(--dim);
+}
+
+/* ============================================================
+   RULES — gradient hairlines, Forest to Sand
+   ============================================================ */
+.rule{
+  border:0;
+  height:var(--stroke);
+  background:var(--grad-rule);
+  margin:var(--section-gap) 0;
+}
+
+/* ============================================================
+   PILLS
+   ============================================================ */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  border-radius:var(--radius-full);
+  border:var(--stroke) solid var(--color-sand);
+  background:transparent;
+  color:var(--color-sand);
+  padding:var(--spacing-10) var(--spacing-13);
+  font-size:var(--text-body);
+  line-height:1;
+  white-space:nowrap;
+  transition:border-color .2s ease, background-color .2s ease;
+}
+.pill:hover{border-color:var(--color-ember);}
+/* Active — solid Ember, Sand text */
+.pill--active,
+.pill--active:hover{
+  background:var(--color-ember);
+  border-color:var(--color-ember);
+  color:var(--color-sand);
+}
+.pill--muted{border-color:rgba(229,217,182,.45);opacity:var(--dim);}
+.pill--muted:hover{opacity:1;}
+.pill--icon{
+  width:44px;height:44px;
+  padding:0;
+  justify-content:center;
+  flex:0 0 auto;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.masthead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:var(--spacing-20);
+}
+.topnav{display:flex;gap:var(--spacing-7);flex-wrap:wrap;justify-content:flex-end;}
+
+/* ============================================================
+   SECTION HEADS
+   ============================================================ */
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--spacing-13);
+  margin-bottom:var(--spacing-29);
+}
+
+/* ============================================================
+   FILTER GRID
+   ============================================================ */
+.filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--spacing-7) var(--spacing-7);
+  overflow:hidden;
+  transition:max-height .35s ease, opacity .25s ease;
+  max-height:1200px;
+}
+.filters[data-collapsed="true"]{max-height:0;opacity:0;}
+.filters .pill{cursor:pointer;}
+
+/* ============================================================
+   VISUAL INDEX
+   ============================================================ */
+.thumb{
+  position:relative;
+  display:block;
+  width:100%;
+  aspect-ratio:3/2;
+  border-radius:0;
+  overflow:hidden;
+  border-bottom:var(--stroke) solid rgba(229,217,182,.45);
+}
+.thumb.is-hidden{display:none;}
+.thumb .canvas{display:block;width:100%;height:100%;transition:opacity .3s ease;}
+/* Hover wash — Forest to Moss to Sand */
+.thumb::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(115deg, rgba(64,81,59,.88) 0%, rgba(98,129,65,.60) 55%, rgba(229,217,182,.30) 100%);
+  opacity:0;
+  transition:opacity .3s ease;
+  pointer-events:none;
+}
+.thumb:hover::after,
+.thumb:focus-visible::after{opacity:1;}
+.thumb-label{
+  position:absolute;
+  top:var(--spacing-20);
+  left:var(--spacing-20);
+  z-index:2;
+  background:rgba(64,81,59,.45);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.thumb:hover .thumb-label{background:var(--color-ember);border-color:var(--color-ember);}
+.index-end{
+  padding:var(--spacing-29);
+  font-size:var(--text-body);
+  color:var(--color-sand);
+  opacity:var(--dim);
+}
+
+/* ============================================================
+   FOOTER INFO BAR
+   ============================================================ */
+.infobar{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  z-index:2;
+  height:var(--footer-h);
+  display:flex;
+  align-items:center;
+  gap:var(--spacing-12);
+  padding:0 var(--spacing-29);
+  background:var(--color-deep);
+  color:var(--color-sand);
+  font-size:var(--text-body);
+  line-height:1;
+  white-space:nowrap;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.infobar::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:var(--stroke);
+  background:var(--grad-rule);
+}
+.infobar::-webkit-scrollbar{display:none;}
+.infobar .sep{opacity:var(--dim);}
+.infobar .quiet{opacity:var(--dim);}
+.infobar a:hover{text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--color-ember);}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1000px){
+  :root{--text-body:20px;--section-gap:48px;--footer-h:52px;}
+  body{overflow:auto;}
+  .split{display:block;height:auto;}
+  .column{overflow:visible;}
+  .control{border-right:0;border-bottom:var(--stroke) solid rgba(229,217,182,.45);padding:var(--spacing-20);}
+  .index{padding-bottom:calc(var(--footer-h) + var(--spacing-20));}
+  .masthead{flex-direction:column;gap:var(--spacing-20);}
+  .topnav{justify-content:flex-start;}
+  .pill--icon{width:38px;height:38px;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important;}
+}
+</style>
+</head>
+<body>
+
+<main class="split">
+
+  <!-- ========== LEFT: TYPOGRAPHIC CONTROL COLUMN ========== -->
+  <section class="column control">
+
+    <div class="masthead">
+      <h1 class="display">Your&nbsp;Name</h1>
+    </div>
+
+    <hr class="rule">
+
+    <div class="section-head">
+      <h2 class="display" id="work">Work</h2>
+      <button class="pill pill--icon" id="collapse" aria-expanded="true" aria-controls="filters" aria-label="Collapse filters">&minus;</button>
+    </div>
+
+    <div class="filters" id="filters" data-collapsed="false" role="group" aria-labelledby="work">
+      <button class="pill pill--active" data-filter="all" aria-pressed="true">Selected</button>
+      <button class="pill" data-filter="graphics" aria-pressed="false">Graphics</button>
+      <button class="pill" data-filter="video" aria-pressed="false">Video</button>
+      <button class="pill" data-filter="branding" aria-pressed="false">Branding</button>
+      <button class="pill" data-filter="motion" aria-pressed="false">Motion Graphics</button>
+      <button class="pill" data-filter="shortfilm" aria-pressed="false">Short Film</button>
+      <button class="pill" data-filter="music" aria-pressed="false">Music</button>
+      <button class="pill" data-filter="sfx" aria-pressed="false">SFX</button>
+      <button class="pill" data-filter="presentations" aria-pressed="false">Presentations</button>
+      <button class="pill" data-filter="podcast" aria-pressed="false">Podcast</button>
+    </div>
+
+    <hr class="rule">
+
+    <h2 class="display">Info</h2>
+    <p class="body" style="margin-top:var(--spacing-29)">
+      I build brands and content pipelines that actually run, from social presence
+      to video edits to figuring out the process behind it all. I've produced solo
+      for years, led a team to a national competition placement, and I pick up new
+      tools fast enough that not knowing something yet has never really slowed me
+      down. I work well independently, but honestly, most of what I'm proud of came
+      from building something alongside a team.
+    </p>
+    <p class="serif" style="margin-top:var(--spacing-20)">
+      Open to new opportunities in marketing, content, and multimedia production.
+      Let's build something great together.
+    </p>
+
+    <hr class="rule">
+
+    <h2 class="display">Contact</h2>
+    <div style="display:flex;gap:var(--spacing-7);flex-wrap:wrap;margin-top:var(--spacing-29)">
+      <a class="pill" href="mailto:hello@yourname.com">hello@yourname.com</a>
+      <a class="pill" href="#">LinkedIn</a>
+    </div>
+
+  </section>
+
+  <!-- ========== RIGHT: FULL-BLEED VISUAL INDEX ========== -->
+  <section class="column index" id="index" aria-label="Work index">
+
+    <!-- 01 -->
+    <a class="thumb" href="#" data-tags="graphics branding">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#628141"/><stop offset="1" stop-color="#E5D9B6"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#33412F"/>
+        <text x="450" y="470" font-family="Inter, sans-serif" font-size="560" font-weight="400" fill="url(#g1)" text-anchor="middle">A</text>
+      </svg>
+      <span class="pill thumb-label">Identity — Atlas Foundry</span>
+    </a>
+
+    <!-- 02 -->
+    <a class="thumb" href="#" data-tags="video shortfilm sfx">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#E5D9B6"/><stop offset="1" stop-color="#628141"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#40513B"/>
+        <g fill="none" stroke="url(#g2)" stroke-width="1.5">
+          <circle cx="450" cy="300" r="60"/><circle cx="450" cy="300" r="120"/>
+          <circle cx="450" cy="300" r="180"/><circle cx="450" cy="300" r="240"/>
+          <circle cx="450" cy="300" r="300"/>
+        </g>
+        <path d="M420 262 L510 300 L420 338 Z" fill="#E67E22"/>
+      </svg>
+      <span class="pill thumb-label">Film — Nightshift</span>
+    </a>
+
+    <!-- 03 -->
+    <a class="thumb" href="#" data-tags="graphics branding presentations">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#628141"/><stop offset="1" stop-color="#E5D9B6"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#33412F"/>
+        <g fill="url(#g3)">
+          <rect x="60"  y="60" width="120" height="120"/><rect x="220" y="60" width="120" height="120"/>
+          <rect x="540" y="60" width="120" height="120"/>
+          <rect x="60"  y="220" width="120" height="120"/><rect x="380" y="220" width="120" height="120"/>
+          <rect x="700" y="220" width="120" height="120"/>
+          <rect x="220" y="380" width="120" height="120"/><rect x="540" y="380" width="120" height="120"/>
+          <rect x="700" y="380" width="120" height="120"/>
+        </g>
+        <g fill="none" stroke="rgba(229,217,182,.5)" stroke-width="1">
+          <rect x="380" y="60" width="120" height="120"/><rect x="700" y="60" width="120" height="120"/>
+          <rect x="220" y="220" width="120" height="120"/><rect x="540" y="220" width="120" height="120"/>
+          <rect x="60"  y="380" width="120" height="120"/><rect x="380" y="380" width="120" height="120"/>
+        </g>
+      </svg>
+      <span class="pill thumb-label">Campaign — Ninety Days</span>
+    </a>
+
+    <!-- 04 -->
+    <a class="thumb" href="#" data-tags="graphics presentations">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g4" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#E5D9B6"/><stop offset="1" stop-color="#628141"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#40513B"/>
+        <g stroke="url(#g4)">
+          <line x1="80" y1="120" x2="820" y2="120" stroke-width="1"/>
+          <line x1="80" y1="180" x2="820" y2="180" stroke-width="3"/>
+          <line x1="80" y1="240" x2="600" y2="240" stroke-width="8"/>
+          <line x1="80" y1="315" x2="820" y2="315" stroke-width="20"/>
+          <line x1="80" y1="400" x2="440" y2="400" stroke-width="8"/>
+          <line x1="80" y1="460" x2="820" y2="460" stroke-width="3"/>
+          <line x1="80" y1="520" x2="700" y2="520" stroke-width="1"/>
+        </g>
+      </svg>
+      <span class="pill thumb-label">Editorial — Volume Four</span>
+    </a>
+
+    <!-- 05 -->
+    <a class="thumb" href="#" data-tags="video shortfilm">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <pattern id="scan" width="10" height="10" patternUnits="userSpaceOnUse">
+            <rect width="10" height="4" fill="#E5D9B6"/>
+          </pattern>
+        </defs>
+        <rect width="900" height="600" fill="#33412F"/>
+        <rect x="0" y="0" width="900" height="600" fill="url(#scan)" opacity=".28"/>
+        <rect x="150" y="150" width="600" height="300" fill="#40513B"/>
+        <rect x="150" y="150" width="600" height="300" fill="none" stroke="#E5D9B6" stroke-width="1"/>
+        <circle cx="450" cy="300" r="70" fill="#E67E22"/>
+      </svg>
+      <span class="pill thumb-label">Colour — Salt Flats</span>
+    </a>
+
+    <!-- 06 -->
+    <a class="thumb" href="#" data-tags="graphics branding">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g6" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#40513B"/><stop offset="1" stop-color="#628141"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#40513B"/>
+        <g fill="none" stroke="#E5D9B6" stroke-width="1">
+          <path d="M330 180 L570 180 L570 500 L330 500 Z"/>
+          <path d="M330 180 L390 100 L630 100 L570 180"/>
+          <path d="M570 180 L630 100 L630 420 L570 500"/>
+        </g>
+        <rect x="330" y="290" width="240" height="70" fill="url(#g6)"/>
+        <rect x="330" y="290" width="240" height="70" fill="none" stroke="#E5D9B6" stroke-width="1"/>
+        <text x="450" y="343" font-family="Inter, sans-serif" font-size="46" fill="#E5D9B6" text-anchor="middle">FORM</text>
+      </svg>
+      <span class="pill thumb-label">Packaging — Field Goods</span>
+    </a>
+
+    <!-- 07 -->
+    <a class="thumb" href="#" data-tags="presentations graphics">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g7" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#628141"/><stop offset="1" stop-color="#E5D9B6"/>
+          </linearGradient>
+          <linearGradient id="g7b" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="rgba(98,129,65,0)"/><stop offset="1" stop-color="rgba(98,129,65,.55)"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#33412F"/>
+        <path d="M80,500 220,430 360,450 500,300 640,320 780,120 780,540 80,540 Z" fill="url(#g7b)"/>
+        <polyline points="80,500 220,430 360,450 500,300 640,320 780,120"
+                  fill="none" stroke="url(#g7)" stroke-width="2.5"/>
+        <g fill="#E5D9B6">
+          <circle cx="220" cy="430" r="7"/><circle cx="360" cy="450" r="7"/>
+          <circle cx="500" cy="300" r="7"/><circle cx="640" cy="320" r="7"/>
+        </g>
+        <circle cx="780" cy="120" r="12" fill="#E67E22"/>
+        <line x1="80" y1="540" x2="820" y2="540" stroke="rgba(229,217,182,.5)" stroke-width="1"/>
+        <line x1="80" y1="60"  x2="80"  y2="540" stroke="rgba(229,217,182,.5)" stroke-width="1"/>
+      </svg>
+      <span class="pill thumb-label">Strategy — Market Entry</span>
+    </a>
+
+    <!-- 08 -->
+    <a class="thumb" href="#" data-tags="video motion sfx">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g8" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#E5D9B6"/><stop offset="1" stop-color="#628141"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#40513B"/>
+        <g fill="none" stroke="url(#g8)" stroke-width="1.5">
+          <rect x="60"  y="180" width="240" height="240"/>
+          <rect x="140" y="220" width="240" height="240"/>
+          <rect x="220" y="260" width="240" height="240"/>
+          <rect x="300" y="140" width="240" height="240"/>
+          <rect x="380" y="180" width="240" height="240"/>
+          <rect x="460" y="220" width="240" height="240"/>
+          <rect x="540" y="140" width="240" height="240"/>
+        </g>
+      </svg>
+      <span class="pill thumb-label">Motion — Title Sequence</span>
+    </a>
+
+    <!-- 09 -->
+    <a class="thumb" href="#" data-tags="graphics motion video">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <pattern id="dots" width="30" height="30" patternUnits="userSpaceOnUse">
+            <circle cx="15" cy="15" r="9" fill="#628141"/>
+          </pattern>
+          <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <mask id="m"><rect width="900" height="600" fill="url(#fade)"/></mask>
+          <linearGradient id="g9" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#628141"/><stop offset="1" stop-color="#E5D9B6"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#33412F"/>
+        <rect width="900" height="600" fill="url(#dots)" mask="url(#m)"/>
+        <text x="820" y="330" font-family="Inter, sans-serif" font-size="120" fill="url(#g9)" text-anchor="end">REACH</text>
+      </svg>
+      <span class="pill thumb-label">Social — Always On</span>
+    </a>
+
+    <!-- 10 -->
+    <a class="thumb" href="#" data-tags="graphics branding presentations">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="900" height="600" fill="#628141"/>
+        <text x="450" y="250" font-family="Inter, sans-serif" font-size="150" fill="#E5D9B6" text-anchor="middle">TYPE</text>
+        <text x="450" y="400" font-family="Inter, sans-serif" font-size="150" fill="#E5D9B6" text-anchor="middle">SETS</text>
+        <text x="450" y="530" font-family="Inter, sans-serif" font-size="60" fill="#40513B" text-anchor="middle">THE TONE</text>
+      </svg>
+      <span class="pill thumb-label">Typography — Specimen</span>
+    </a>
+
+    <!-- 11 -->
+    <a class="thumb" href="#" data-tags="music sfx video">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g11" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#628141"/><stop offset="1" stop-color="#E5D9B6"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#33412F"/>
+        <g fill="url(#g11)">
+          <rect x="70"  y="330" width="34" height="140"/><rect x="124" y="240" width="34" height="230"/>
+          <rect x="178" y="150" width="34" height="320"/><rect x="232" y="290" width="34" height="180"/>
+          <rect x="286" y="90"  width="34" height="380"/><rect x="340" y="200" width="34" height="270"/>
+          <rect x="394" y="120" width="34" height="350"/><rect x="448" y="310" width="34" height="160"/>
+          <rect x="502" y="180" width="34" height="290"/><rect x="556" y="60"  width="34" height="410"/>
+          <rect x="610" y="260" width="34" height="210"/><rect x="664" y="170" width="34" height="300"/>
+          <rect x="718" y="330" width="34" height="140"/><rect x="772" y="230" width="34" height="240"/>
+        </g>
+        <line x1="40" y1="470" x2="860" y2="470" stroke="rgba(229,217,182,.5)" stroke-width="1"/>
+      </svg>
+      <span class="pill thumb-label">Music &mdash; Track Beds</span>
+    </a>
+
+    <!-- 12 -->
+    <a class="thumb" href="#" data-tags="podcast music sfx">
+      <svg class="canvas" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="g12" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#40513B"/><stop offset=".5" stop-color="#628141"/><stop offset="1" stop-color="#E5D9B6"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="600" fill="#40513B"/>
+        <g stroke="url(#g12)" stroke-width="4" stroke-linecap="round">
+          <line x1="60"  y1="270" x2="60"  y2="330"/><line x1="100" y1="240" x2="100" y2="360"/>
+          <line x1="140" y1="200" x2="140" y2="400"/><line x1="180" y1="265" x2="180" y2="335"/>
+          <line x1="220" y1="170" x2="220" y2="430"/><line x1="260" y1="230" x2="260" y2="370"/>
+          <line x1="300" y1="285" x2="300" y2="315"/><line x1="340" y1="190" x2="340" y2="410"/>
+          <line x1="560" y1="190" x2="560" y2="410"/><line x1="600" y1="285" x2="600" y2="315"/>
+          <line x1="640" y1="230" x2="640" y2="370"/><line x1="680" y1="170" x2="680" y2="430"/>
+          <line x1="720" y1="265" x2="720" y2="335"/><line x1="760" y1="200" x2="760" y2="400"/>
+          <line x1="800" y1="240" x2="800" y2="360"/><line x1="840" y1="270" x2="840" y2="330"/>
+        </g>
+        <circle cx="450" cy="300" r="92" fill="none" stroke="#E5D9B6" stroke-width="1.5"/>
+        <circle cx="450" cy="300" r="20" fill="#E67E22"/>
+      </svg>
+      <span class="pill thumb-label">Podcast &mdash; Studio Sessions</span>
+    </a>
+
+    <p class="index-end">End of index — 12 of 24 projects shown.</p>
+
+  </section>
+</main>
+
+<!-- ========== FOOTER INFO BAR ========== -->
+<footer class="infobar">
+  <span>Manila 31&deg;</span><span class="sep">|</span>
+  <span>Your Name</span><span class="sep">|</span>
+  <span class="quiet">Multimedia &amp; Marketing</span><span class="sep">|</span>
+  <a href="mailto:hello@yourname.com">hello@yourname.com</a>
+</footer>
+
+<script>
+(function () {
+  var filters = document.getElementById('filters');
+  var pills   = filters.querySelectorAll('[data-filter]');
+  var thumbs  = document.querySelectorAll('.thumb');
+  var index   = document.getElementById('index');
+
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      pills.forEach(function (p) {
+        p.classList.remove('pill--active');
+        p.setAttribute('aria-pressed', 'false');
+      });
+      pill.classList.add('pill--active');
+      pill.setAttribute('aria-pressed', 'true');
+
+      var f = pill.dataset.filter;
+      thumbs.forEach(function (t) {
+        var show = f === 'all' || t.dataset.tags.split(' ').indexOf(f) !== -1;
+        t.classList.toggle('is-hidden', !show);
+      });
+      index.scrollTop = 0;
+    });
+  });
+
+  // Collapse toggle for the Work filter grid
+  var toggle = document.getElementById('collapse');
+  toggle.addEventListener('click', function () {
+    var collapsed = filters.dataset.collapsed === 'true';
+    filters.dataset.collapsed = String(!collapsed);
+    toggle.setAttribute('aria-expanded', String(collapsed));
+    toggle.innerHTML = collapsed ? '&minus;' : '+';
+    toggle.setAttribute('aria-label', collapsed ? 'Collapse filters' : 'Expand filters');
+  });
+})();
+</script>
+
+</body>
+</html>
