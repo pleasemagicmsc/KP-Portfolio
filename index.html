@@ -86,7 +86,17 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   padding:var(--spacing-29) var(--spacing-29) 80px;
   border-right:var(--stroke) solid rgba(229,217,182,.45);
 }
-.index{padding:0;background:linear-gradient(180deg, rgba(51,65,47,.55) 0%, rgba(51,65,47,0) 40%);}
+.index{
+  padding:0;
+  background:linear-gradient(180deg, rgba(51,65,47,.55) 0%, rgba(51,65,47,0) 40%);
+  /* Two tracks. Landscape pieces span both, square and portrait take one each,
+     so a pair of squares shares a row instead of costing two screens of scroll.
+     'dense' lets a later narrow piece fill a gap rather than leaving a hole. */
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-auto-flow:row dense;
+  align-content:start;
+}
 
 /* ============================================================
    TYPE
@@ -165,6 +175,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   position:relative;
   display:block;
   width:100%;
+  grid-column:span 2;          /* landscape default — full width */
   /* Set per piece from its real dimensions. 3/2 is only the fallback for
      older entries that predate aspect capture. */
   aspect-ratio:var(--ar, 3/2);
@@ -176,6 +187,15 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   text-align:left;
 }
 .thumb.is-hidden{display:none;}
+/* Square and portrait — half width, two to a row */
+.thumb--half{
+  grid-column:span 1;
+  border-right:var(--stroke) solid rgba(229,217,182,.45);
+}
+.thumb--half .thumb-label{font-size:.82em;}
+.thumb--half .thumb-pages{font-size:.62em;}
+.thumb--half .thumb-play{width:44px;height:44px;}
+.index-empty,.index-end{grid-column:1 / -1;}
 .thumb .canvas{
   display:block;width:100%;height:100%;
   /* contain, not cover — nothing gets cropped. When the tile's ratio matches
@@ -290,7 +310,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .split{display:block;height:auto;}
   .column{overflow:visible;}
   .control{border-right:0;border-bottom:var(--stroke) solid rgba(229,217,182,.45);padding:var(--spacing-20);}
-  .index{padding-bottom:calc(var(--footer-h) + var(--spacing-20));}
+  .index{
+    display:block;                 /* one column once the split stacks */
+    padding-bottom:calc(var(--footer-h) + var(--spacing-20));
+  }
+  .thumb--half{border-right:0;}
   .masthead{flex-direction:column;gap:var(--spacing-20);}
   .pill--icon{width:38px;height:38px;}
   .thumb-play{width:44px;height:44px;}
@@ -398,6 +422,8 @@ const PLAYABLE = ['youtube','vimeo','video'];
 /* Aspect = width / height. Clamped so one extreme piece can't swallow the
    column: nothing narrower than 2:3 portrait or wider than 21:9. */
 const AR_MIN = 0.66, AR_MAX = 2.4;
+/* Anything wider than this gets a full-width row of its own */
+const WIDE_AT = 1.2;
 function clampAR(a, type){
   const n = Number(a);
   if(!n || !isFinite(n)) return PLAYABLE.includes(type) ? 16/9 : 3/2;
@@ -511,6 +537,8 @@ function renderIndex(){
     btn.type = 'button';
     const first = w._slides[0];
     btn.style.setProperty('--ar', String(first.aspect));
+    /* Below this ratio a piece is square-ish or portrait, so it pairs up */
+    if(first.aspect < WIDE_AT) btn.classList.add('thumb--half');
     btn.setAttribute('aria-label', 'Open ' + w.title);
 
     const img = document.createElement('img');
