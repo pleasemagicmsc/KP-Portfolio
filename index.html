@@ -165,7 +165,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   position:relative;
   display:block;
   width:100%;
-  aspect-ratio:3/2;
+  /* Set per piece from its real dimensions. 3/2 is only the fallback for
+     older entries that predate aspect capture. */
+  aspect-ratio:var(--ar, 3/2);
   border-radius:0;
   overflow:hidden;
   border:0;
@@ -176,7 +178,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .thumb.is-hidden{display:none;}
 .thumb .canvas{
   display:block;width:100%;height:100%;
-  object-fit:cover;
+  /* contain, not cover — nothing gets cropped. When the tile's ratio matches
+     the artwork the two are identical anyway, so there's no letterboxing. */
+  object-fit:contain;
   transition:opacity .3s ease;
   background:var(--color-deep);
 }
@@ -231,11 +235,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
    streaming quality partly from the player's rendered size. */
 .lightbox-stage{max-height:calc(100vh - 200px);margin-inline:auto;width:100%;}
 .lightbox-stage{
-  position:relative;width:100%;aspect-ratio:16/9;
+  position:relative;width:100%;aspect-ratio:var(--ar, 16/9);
   background:#000;border:var(--stroke) solid rgba(229,217,182,.45);
 }
 .lightbox-stage > *{position:absolute;inset:0;width:100%;height:100%;border:0;}
 .lightbox-stage img{object-fit:contain;}
+.lightbox-stage video{object-fit:contain;background:#000;}
 .lightbox-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-13);flex-wrap:wrap;}
 .lightbox-meta{display:flex;flex-direction:column;gap:6px;min-width:0;}
 .lightbox-title{font-size:var(--text-body);}
@@ -373,6 +378,15 @@ const CATEGORIES = [
 
 const PLAYABLE = ['youtube','vimeo','video'];
 
+/* Aspect = width / height. Clamped so one extreme piece can't swallow the
+   column: nothing narrower than 2:3 portrait or wider than 21:9. */
+const AR_MIN = 0.66, AR_MAX = 2.4;
+function aspectOf(w){
+  const a = Number(w.aspect);
+  if(!a || !isFinite(a)) return PLAYABLE.includes(w.type) ? 16/9 : 3/2;
+  return Math.min(AR_MAX, Math.max(AR_MIN, a));
+}
+
 /* Folder holding posters and self-hosted video.
    Must match MEDIA_DIR in admin.html, and must match the real folder name
    exactly — Vercel's servers are case-sensitive, so Assets != assets. */
@@ -452,6 +466,7 @@ function renderIndex(){
     const btn = document.createElement('button');
     btn.className = 'thumb';
     btn.type = 'button';
+    btn.style.setProperty('--ar', String(aspectOf(w)));
     btn.setAttribute('aria-label', 'Open ' + w.title);
 
     const img = document.createElement('img');
@@ -513,6 +528,7 @@ function open(i){
   current = i;
   lastFocus = document.activeElement;
   const w = visible[i];
+  $stage.style.setProperty('--ar', String(aspectOf(w)));
   $stage.innerHTML = embed(w);
   document.getElementById('lbTitle').textContent = (w.kind ? w.kind + ' — ' : '') + w.title;
   document.getElementById('lbSub').textContent =

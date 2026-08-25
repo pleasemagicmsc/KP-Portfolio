@@ -50,7 +50,7 @@ hr{border:0;height:1px;background:linear-gradient(90deg,var(--forest),var(--moss
   background:var(--deep);border:1px solid rgba(229,217,182,.28);border-radius:14px;
 }
 .row.drag{opacity:.4;}
-.row .thumb{width:200px;aspect-ratio:16/9;object-fit:cover;background:#000;border-radius:8px;}
+.row .thumb{width:200px;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:8px;}
 .fields{display:flex;flex-direction:column;gap:10px;min-width:0;}
 .pair{display:flex;gap:10px;flex-wrap:wrap;}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;opacity:.7;flex:1;min-width:120px;}
@@ -189,6 +189,17 @@ function vimeoId(url){
   return m ? m[1] : null;
 }
 
+/* Natural dimensions of an image, so the tile can take its shape */
+function imageAspect(file){
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img.naturalWidth / img.naturalHeight); };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
 /* Grab a frame ~1s in, for the grid thumbnail */
 function capturePoster(file){
   return new Promise(resolve => {
@@ -199,11 +210,12 @@ function capturePoster(file){
     v.onloadeddata = () => { v.currentTime = Math.min(1, (v.duration||2) * .25); };
     v.onseeked = () => {
       clearTimeout(bail);
+      const ratio = (v.videoWidth && v.videoHeight) ? v.videoWidth / v.videoHeight : 16/9;
       const c = document.createElement('canvas');
       c.width = 1920;
-      c.height = Math.round(1920 * (v.videoHeight/v.videoWidth || 0.5625));
+      c.height = Math.round(1920 / ratio);
       c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-      c.toBlob(b => { URL.revokeObjectURL(v.src); resolve(b); }, 'image/jpeg', .92);
+      c.toBlob(b => { URL.revokeObjectURL(v.src); resolve({ blob:b, aspect:ratio }); }, 'image/jpeg', .92);
     };
     v.onerror = () => { clearTimeout(bail); resolve(null); };
   });
@@ -222,12 +234,17 @@ async function addFiles(files){
       type: isVideo ? 'video' : 'image',
       blob: f,
       fileExt: ext(f.name),
-      posterBlob: null
+      posterBlob: null,
+      aspect: null
     };
     items.push(item);
     render();
     if(isVideo){
-      item.posterBlob = await capturePoster(f);
+      const cap = await capturePoster(f);
+      if(cap){ item.posterBlob = cap.blob; item.aspect = cap.aspect; }
+      render(); save();
+    }else{
+      item.aspect = await imageAspect(f);
       render(); save();
     }
   }
@@ -247,7 +264,8 @@ function addLink(){
     categories: ['video'],
     type: y ? 'youtube' : 'vimeo',
     src: y || v,
-    blob: null, posterBlob: null
+    blob: null, posterBlob: null,
+    aspect: 16/9
   });
   render(); save();
 }
@@ -312,14 +330,19 @@ function render(){
     });
 
     const p = row.querySelector('.path');
+    const shape = it.aspect
+      ? (it.aspect > 1.2 ? 'landscape' : it.aspect < 0.85 ? 'portrait' : 'square')
+        + ' &middot; ' + it.aspect.toFixed(2) + ':1'
+      : 'shape not detected — tile falls back to 3:2';
     if(it.blob){
       const base = slug(it.title);
       p.innerHTML = 'exports as <code>' + MEDIA_DIR + '/' + base + '.' + it.fileExt + '</code>' +
         (it.posterBlob ? ' + <code>' + MEDIA_DIR + '/' + base + '-poster.jpg</code>' : '') +
+        '<br>' + shape +
         '<br>' + (it.blob.size/1048576).toFixed(1) + ' MB' +
         (it.blob.size > 20*1048576 ? ' <span class="warn">— large for git, consider a video link</span>' : '');
     }else{
-      p.innerHTML = it.type + ' &middot; <code>' + it.src + '</code>';
+      p.innerHTML = it.type + ' &middot; <code>' + it.src + '</code><br>' + shape;
     }
 
     row.querySelectorAll('input').forEach(inp => {
@@ -367,6 +390,7 @@ function manifest(){
         year: it.year,
         categories: it.categories,
         type: it.type,
+        aspect: it.aspect ? Math.round(it.aspect * 10000) / 10000 : null,
         order: i + 1
       };
       if(it.blob) o.src = MEDIA_DIR + '/' + base + '.' + it.fileExt;
