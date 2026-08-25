@@ -1,17 +1,46 @@
 {
   "works": [
     {
+      "id": "w_v5zfwrd",
+      "title": "CEO Insights Asia Review #2",
+      "kind": "Graphics",
+      "year": "2024",
+      "categories": [
+        "graphics",
+        "branding"
+      ],
+      "type": "image",
+      "order": 1,
+      "src": "Assets/ceo-insights-asia-review-2.png",
+      "poster": "Assets/ceo-insights-asia-review-2.png"
+    },
+    {
       "id": "w_b0htysf",
-      "title": "Yukos - Music Video",
-      "kind": "Video",
+      "title": "Yukos",
+      "kind": "Music Video",
       "year": "2024",
       "categories": [
         "music",
         "video"
       ],
       "type": "youtube",
-      "order": 1,
+      "order": 2,
       "src": "gPr8PrXYaQ0"
+    },
+    {
+      "id": "w_az4u8j6",
+      "title": "Plus 63",
+      "kind": "Video",
+      "year": "2025",
+      "categories": [
+        "video",
+        "graphics",
+        "motion",
+        "music"
+      ],
+      "type": "youtube",
+      "order": 3,
+      "src": "wT15qy6ZNW0"
     }
   ]
 }
