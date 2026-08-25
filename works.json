@@ -1,20 +1,6 @@
 {
   "works": [
     {
-      "id": "w_v5zfwrd",
-      "title": "CEO Insights Asia Review #2",
-      "kind": "Graphics",
-      "year": "2024",
-      "categories": [
-        "graphics",
-        "branding"
-      ],
-      "type": "image",
-      "order": 1,
-      "src": "Assets/ceo-insights-asia-review-2.png",
-      "poster": "Assets/ceo-insights-asia-review-2.png"
-    },
-    {
       "id": "w_b0htysf",
       "title": "Yukos",
       "kind": "Music Video",
@@ -24,7 +10,8 @@
         "video"
       ],
       "type": "youtube",
-      "order": 2,
+      "aspect": null,
+      "order": 1,
       "src": "gPr8PrXYaQ0"
     },
     {
@@ -39,8 +26,23 @@
         "music"
       ],
       "type": "youtube",
-      "order": 3,
+      "aspect": null,
+      "order": 2,
       "src": "wT15qy6ZNW0"
+    },
+    {
+      "id": "w_0hpr6y7",
+      "title": "UBEM - Intern Showcase",
+      "kind": "Graphics",
+      "year": "2025",
+      "categories": [
+        "graphics"
+      ],
+      "type": "image",
+      "aspect": 1,
+      "order": 3,
+      "src": "Assets/ubem-intern-showcase.webp",
+      "poster": "Assets/ubem-intern-showcase.webp"
     }
   ]
 }
