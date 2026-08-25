@@ -1,0 +1,15 @@
+{
+  "works": [
+    {
+      "id": "w_sample1",
+      "title": "Replace me",
+      "kind": "Sample",
+      "year": "2026",
+      "categories": ["graphics", "branding"],
+      "type": "image",
+      "src": "Assets/placeholder.svg",
+      "poster": "Assets/placeholder.svg",
+      "order": 1
+    }
+  ]
+}
