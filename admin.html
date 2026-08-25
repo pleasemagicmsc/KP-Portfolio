@@ -189,6 +189,31 @@ function vimeoId(url){
   return m ? m[1] : null;
 }
 
+/* Re-encode an image to WebP at web size. PNG in, WebP out — usually a
+   10-20x saving on flat graphic work, with alpha preserved.
+   Falls back to the original if the conversion somehow comes out bigger. */
+const MAX_W = 2400, QUALITY = .85;
+function optimise(file){
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, MAX_W / img.naturalWidth);
+      const c = document.createElement('canvas');
+      c.width  = Math.round(img.naturalWidth  * scale);
+      c.height = Math.round(img.naturalHeight * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => {
+        URL.revokeObjectURL(url);
+        if(!b || b.size >= file.size) return resolve(null);   // keep the original
+        resolve({ blob:b, ext:'webp', w:c.width, h:c.height });
+      }, 'image/webp', QUALITY);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
 /* Natural dimensions of an image, so the tile can take its shape */
 function imageAspect(file){
   return new Promise(resolve => {
@@ -235,7 +260,9 @@ async function addFiles(files){
       blob: f,
       fileExt: ext(f.name),
       posterBlob: null,
-      aspect: null
+      aspect: null,
+      optBlob: null,      // WebP version
+      optimise: true      // per-piece toggle
     };
     items.push(item);
     render();
@@ -245,6 +272,9 @@ async function addFiles(files){
       render(); save();
     }else{
       item.aspect = await imageAspect(f);
+      render();
+      const o = await optimise(f);
+      if(o){ item.optBlob = o.blob; item.optW = o.w; item.optH = o.h; }
       render(); save();
     }
   }
@@ -313,6 +343,7 @@ function render(){
         '<div class="handle" title="Drag to reorder">⣿</div>' +
         '<button class="pill sm ghost" data-a="up">Move up</button>' +
         '<button class="pill sm ghost" data-a="down">Move down</button>' +
+        '<button class="pill sm ghost" data-a="opt">Optimise</button>' +
         '<button class="pill sm ghost" data-a="del">Remove</button>' +
       '</div>';
 
@@ -336,11 +367,21 @@ function render(){
       : 'shape not detected — tile falls back to 3:2';
     if(it.blob){
       const base = slug(it.title);
-      p.innerHTML = 'exports as <code>' + MEDIA_DIR + '/' + base + '.' + it.fileExt + '</code>' +
+      const out = outputOf(it);
+      const saved = it.optBlob ? Math.round((1 - it.optBlob.size / it.blob.size) * 100) : 0;
+      p.innerHTML =
+        'exports as <code>' + MEDIA_DIR + '/' + base + '.' + out.ext + '</code>' +
         (it.posterBlob ? ' + <code>' + MEDIA_DIR + '/' + base + '-poster.jpg</code>' : '') +
         '<br>' + shape +
-        '<br>' + (it.blob.size/1048576).toFixed(1) + ' MB' +
-        (it.blob.size > 20*1048576 ? ' <span class="warn">— large for git, consider a video link</span>' : '');
+        '<br>' + mb(it.blob.size) +
+        (it.optBlob
+          ? (it.optimise
+              ? ' &rarr; <b>' + mb(it.optBlob.size) + '</b> as WebP, ' + saved + '% smaller'
+                + (it.optW ? ' &middot; ' + it.optW + '&times;' + it.optH : '')
+              : ' <span class="warn">— sending the original, ' + mb(it.optBlob.size) + ' available</span>')
+          : '') +
+        (out.blob && out.blob.size > 20*1048576
+          ? ' <span class="warn">— large for git, consider a video link</span>' : '');
     }else{
       p.innerHTML = it.type + ' &middot; <code>' + it.src + '</code><br>' + shape;
     }
@@ -349,9 +390,15 @@ function render(){
       inp.oninput = () => { it[inp.dataset.k] = inp.value; save(); refreshOut(); if(inp.dataset.k==='title') p.dispatchEvent(new Event('x')); };
       inp.onblur = render;
     });
+    const optBtn = row.querySelector('[data-a="opt"]');
+    if(optBtn){
+      if(!it.optBlob){ optBtn.style.display = 'none'; }
+      else optBtn.className = 'pill sm' + (it.optimise ? ' on' : ' ghost');
+    }
     row.querySelectorAll('[data-a]').forEach(b => {
       b.onclick = () => {
         const a = b.dataset.a;
+        if(a === 'opt'){ it.optimise = !it.optimise; }
         if(a === 'del'){ items.splice(i,1); }
         if(a === 'up' && i > 0){ [items[i-1], items[i]] = [items[i], items[i-1]]; }
         if(a === 'down' && i < items.length-1){ [items[i+1], items[i]] = [items[i], items[i+1]]; }
@@ -379,6 +426,13 @@ function render(){
 
 const esc = s => String(s||'').replace(/"/g,'&quot;');
 
+/* Which blob and extension a piece exports as */
+function outputOf(it){
+  if(it.optBlob && it.optimise) return { blob: it.optBlob, ext: 'webp' };
+  return { blob: it.blob, ext: it.fileExt };
+}
+const mb = b => (b/1048576).toFixed(b < 1048576 ? 2 : 1) + ' MB';
+
 function manifest(){
   return {
     works: items.map((it, i) => {
@@ -393,7 +447,7 @@ function manifest(){
         aspect: it.aspect ? Math.round(it.aspect * 10000) / 10000 : null,
         order: i + 1
       };
-      if(it.blob) o.src = MEDIA_DIR + '/' + base + '.' + it.fileExt;
+      if(it.blob) o.src = MEDIA_DIR + '/' + base + '.' + outputOf(it).ext;
       else o.src = it.src;
       if(it.posterBlob) o.poster = MEDIA_DIR + '/' + base + '-poster.jpg';
       else if(it.type === 'image' && it.blob) o.poster = o.src;
@@ -422,7 +476,8 @@ document.getElementById('exportMedia').onclick = async () => {
   if(!withFiles.length){ alert('No uploaded files to rename — links do not need one.'); return; }
   for(const it of withFiles){
     const base = slug(it.title);
-    download(it.blob, base + '.' + it.fileExt);
+    const out = outputOf(it);
+    download(out.blob, base + '.' + out.ext);
     await new Promise(r => setTimeout(r, 400));
     if(it.posterBlob){
       download(it.posterBlob, base + '-poster.jpg');
