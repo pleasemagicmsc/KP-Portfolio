@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Info — Keril Priola</title>
+<meta name="description" content="Keril Priola is a multimedia and marketing generalist working across graphic design, video, motion, and content strategy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Source+Serif+4:ital,wght@1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS — identical to index.html
+   RULES: all text is Sand. Gradients use Forest / Moss / Sand only.
+          Ember is a solid accent — never in a gradient.
+   ============================================================ */
+:root{
+  --color-forest:#40513B;
+  --color-moss:#628141;
+  --color-sand:#E5D9B6;
+  --color-ember:#E67E22;
+  --color-deep:#33412F;
+
+  --grad-primary:linear-gradient(135deg, var(--color-forest) 0%, var(--color-moss) 100%);
+  --grad-rule:linear-gradient(90deg, var(--color-forest) 0%, var(--color-moss) 40%, rgba(229,217,182,.8) 100%);
+
+  --font-lausanne:'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-victor-serif:'Source Serif 4', ui-serif, Georgia, "Times New Roman", serif;
+
+  --text-display:72px;
+  --leading-display:1;
+  --text-body:24px;
+  --leading-body:1.2;
+
+  --spacing-7:7px;  --spacing-8:8px;  --spacing-10:10px;
+  --spacing-12:12px;--spacing-13:13px;--spacing-20:20px;--spacing-29:29px;
+
+  --radius-full:120px;
+  --section-gap:64px;
+  --footer-h:58px;
+  --stroke:1px;
+  --dim:.68;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--color-forest);
+  color:var(--color-sand);
+  font-family:var(--font-lausanne);
+  font-weight:400;
+  font-size:var(--text-body);
+  line-height:var(--leading-body);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(120% 90% at 8% 105%, rgba(98,129,65,.32) 0%, rgba(98,129,65,0) 60%),
+    radial-gradient(90% 70% at 100% 0%, rgba(98,129,65,.22) 0%, rgba(98,129,65,0) 60%);
+}
+h1,h2,h3,p,figure{margin:0;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;}
+::selection{background:var(--color-ember);color:var(--color-sand);}
+:focus-visible{outline:2px solid var(--color-ember);outline-offset:4px;}
+
+/* ============================================================
+   SPLIT STAGE
+   ============================================================ */
+.split{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:40% 60%;
+  height:calc(100vh - var(--footer-h));
+  height:calc(100dvh - var(--footer-h));
+}
+.column{overflow-y:auto;scrollbar-width:none;scroll-behavior:smooth;}
+.column::-webkit-scrollbar{display:none;}
+.control{
+  padding:var(--spacing-29) var(--spacing-29) 80px;
+  border-right:var(--stroke) solid rgba(229,217,182,.45);
+}
+.doc{
+  padding:var(--spacing-29) var(--spacing-29) 120px;
+  background:linear-gradient(180deg, rgba(51,65,47,.55) 0%, rgba(51,65,47,0) 40%);
+}
+
+/* ============================================================
+   TYPE
+   ============================================================ */
+.display{
+  font-size:clamp(40px, 5.2vw, var(--text-display));
+  line-height:var(--leading-display);
+  font-weight:400;
+  color:var(--color-sand);
+}
+.body{font-size:var(--text-body);line-height:var(--leading-body);max-width:42ch;color:var(--color-sand);}
+.serif{
+  font-family:var(--font-victor-serif);
+  font-style:italic;
+  font-size:var(--text-body);
+  line-height:var(--leading-body);
+  color:var(--color-sand);
+  opacity:var(--dim);
+}
+.rule{
+  border:0;height:var(--stroke);
+  background:var(--grad-rule);
+  margin:var(--section-gap) 0;
+}
+
+/* ============================================================
+   PILLS
+   ============================================================ */
+.pill{
+  display:inline-flex;align-items:center;gap:var(--spacing-8);
+  border-radius:var(--radius-full);
+  border:var(--stroke) solid var(--color-sand);
+  background:transparent;color:var(--color-sand);
+  padding:var(--spacing-10) var(--spacing-13);
+  font-size:var(--text-body);line-height:1;white-space:nowrap;
+  transition:border-color .2s ease, background-color .2s ease, opacity .2s ease;
+}
+.pill:hover{border-color:var(--color-ember);}
+.pill--active,.pill--active:hover{
+  background:var(--color-ember);
+  border-color:var(--color-ember);
+  color:var(--color-sand);
+}
+.pill--muted{border-color:rgba(229,217,182,.45);opacity:var(--dim);}
+.pill--muted:hover{opacity:1;}
+.pill--icon{width:44px;height:44px;padding:0;justify-content:center;flex:0 0 auto;}
+
+.masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--spacing-20);}
+.topnav{display:flex;gap:var(--spacing-7);flex-wrap:wrap;justify-content:flex-end;}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--spacing-13);margin-bottom:var(--spacing-29);
+}
+.pillrow{display:flex;flex-wrap:wrap;gap:var(--spacing-7);}
+.pillrow--stack{
+  overflow:hidden;
+  transition:max-height .35s ease, opacity .25s ease;
+  max-height:600px;
+}
+.pillrow--stack[data-collapsed="true"]{max-height:0;opacity:0;}
+
+/* ============================================================
+   CONTACT BLOCK — reference groups by location, one line per field
+   ============================================================ */
+.contact-group{margin-top:var(--spacing-29);}
+.contact-group + .contact-group{margin-top:var(--spacing-20);}
+.contact-group .where{opacity:var(--dim);}
+.contact-group a:hover{text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--color-ember);}
+
+/* ============================================================
+   DOCUMENT — the right column
+   ============================================================ */
+.sect{scroll-margin-top:var(--spacing-29);}
+.sect + .sect{margin-top:96px;}
+.sect > .display{margin-bottom:var(--spacing-29);}
+
+.portrait{
+  width:100%;
+  aspect-ratio:16/10;
+  object-fit:cover;
+  display:block;
+  background:var(--color-deep);
+  border:var(--stroke) solid rgba(229,217,182,.45);
+}
+.caption{margin-top:var(--spacing-12);}
+
+/* Subsection: heading, body, italic echo */
+.entry{padding-top:var(--spacing-29);}
+.entry + .entry{margin-top:var(--spacing-29);border-top:var(--stroke) solid rgba(229,217,182,.28);}
+.entry h3{
+  font-size:var(--text-body);
+  font-weight:400;
+  margin-bottom:var(--spacing-13);
+}
+.entry .body{max-width:58ch;}
+.entry .serif{max-width:58ch;margin-top:var(--spacing-12);display:block;}
+
+/* Slash-separated run-on lists, as the reference sets them */
+.runon{
+  font-size:var(--text-body);
+  line-height:1.35;
+  max-width:62ch;
+  word-break:break-word;
+}
+.runon .slash{opacity:.45;padding:0 2px;}
+.placeholder{
+  border:var(--stroke) dashed rgba(229,217,182,.45);
+  border-radius:14px;
+  padding:var(--spacing-20);
+  margin-top:var(--spacing-20);
+  max-width:58ch;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.infobar{
+  position:fixed;left:0;right:0;bottom:0;z-index:2;
+  height:var(--footer-h);
+  display:flex;align-items:center;gap:var(--spacing-12);
+  padding:0 var(--spacing-29);
+  background:var(--color-deep);color:var(--color-sand);
+  font-size:var(--text-body);line-height:1;
+  white-space:nowrap;overflow-x:auto;scrollbar-width:none;
+}
+.infobar::before{content:"";position:absolute;top:0;left:0;right:0;height:var(--stroke);background:var(--grad-rule);}
+.infobar::-webkit-scrollbar{display:none;}
+.infobar .sep,.infobar .quiet{opacity:var(--dim);}
+.infobar a:hover{text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--color-ember);}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1000px){
+  :root{--text-body:20px;--section-gap:48px;--footer-h:52px;}
+  body{overflow:auto;}
+  .split{display:block;height:auto;}
+  .column{overflow:visible;}
+  .control{border-right:0;border-bottom:var(--stroke) solid rgba(229,217,182,.45);padding:var(--spacing-20);}
+  .doc{padding:var(--spacing-20) var(--spacing-20) calc(var(--footer-h) + 40px);}
+  .masthead{flex-direction:column;gap:var(--spacing-20);}
+  .topnav{justify-content:flex-start;}
+  .pill--icon{width:38px;height:38px;}
+  .sect + .sect{margin-top:64px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important;}
+  .column{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+
+<main class="split">
+
+  <!-- ========== LEFT: CONTROL COLUMN ========== -->
+  <section class="column control">
+
+    <div class="masthead">
+      <h1 class="display"><a href="index.html">Keril&nbsp;Priola</a></h1>
+      <nav class="topnav" aria-label="Primary">
+        <a class="pill" href="index.html">Work</a>
+        <a class="pill pill--active" href="info.html" aria-current="page">Info</a>
+      </nav>
+    </div>
+
+    <hr class="rule">
+
+    <!-- Intro block — the reference carries the studio description here,
+         in the left column, not in the document -->
+    <p class="body">
+      I build brands and content pipelines that actually run, from social presence
+      to video edits to figuring out the process behind it all. I've produced solo
+      for years, led a team to a national competition placement, and I pick up new
+      tools fast enough that not knowing something yet has never really slowed me
+      down. I work well independently, but honestly, most of what I'm proud of came
+      from building something alongside a team.
+    </p>
+    <p class="serif" style="margin-top:var(--spacing-20)">
+      Open to new opportunities in marketing, content, and multimedia production.
+      Let's build something great together.
+    </p>
+
+    <hr class="rule">
+
+    <!-- Section anchors — jump the right column -->
+    <div class="section-head">
+      <h2 class="display" id="contents">Contents</h2>
+      <button class="pill pill--icon" id="collapse" aria-expanded="true" aria-controls="anchors" aria-label="Collapse contents">&minus;</button>
+    </div>
+    <nav class="pillrow pillrow--stack" id="anchors" data-collapsed="false" aria-labelledby="contents">
+      <a class="pill" href="#about"    data-anchor="about">About</a>
+      <a class="pill" href="#services" data-anchor="services">Services</a>
+      <a class="pill" href="#network"  data-anchor="network">+ Network</a>
+      <a class="pill" href="#features" data-anchor="features">Features</a>
+    </nav>
+
+    <hr class="rule">
+
+    <h2 class="display">Contact</h2>
+
+    <div class="contact-group">
+      <div>Keril Priola</div>
+      <div class="where">Multimedia &amp; Marketing</div>
+      <div><a href="mailto:priolakerilm@gmail.com">priolakerilm@gmail.com</a></div>
+    </div>
+
+    <div class="contact-group">
+      <div class="where">Philippines</div>
+      <div><a href="https://www.linkedin.com/in/hello-its-kp/" target="_blank" rel="noopener noreferrer">linkedin.com/in/hello-its-kp</a></div>
+    </div>
+
+    <div class="pillrow" style="margin-top:var(--spacing-29)">
+      <a class="pill" href="mailto:priolakerilm@gmail.com">Email</a>
+      <a class="pill" href="https://www.linkedin.com/in/hello-its-kp/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+
+  </section>
+
+  <!-- ========== RIGHT: DOCUMENT ========== -->
+  <section class="column doc" id="doc">
+
+    <!-- ---------- ABOUT ---------- -->
+    <section class="sect" id="about">
+      <h2 class="display">About</h2>
+      <img class="portrait" src="Assets/portrait-placeholder.svg"
+           alt="Keril Priola" width="1600" height="1000">
+      <p class="serif caption">Replace with a photograph of yourself, 1600&times;1000 or wider.</p>
+    </section>
+
+    <!-- ---------- SERVICES ---------- -->
+    <section class="sect" id="services">
+      <h2 class="display">Services</h2>
+
+      <div class="entry">
+        <h3>Graphics &amp; Branding</h3>
+        <p class="body">
+          Identity work, campaign key art, editorial layout, and the templates that keep
+          a brand consistent once the launch is over. I design the system, not just the
+          single asset, so the next person to touch it has something to follow.
+        </p>
+        <p class="serif">From one poster to a full brand kit.</p>
+      </div>
+
+      <div class="entry">
+        <h3>Video &amp; Short Film</h3>
+        <p class="body">
+          Shooting and editing for campaigns, showcases, and narrative pieces. Comfortable
+          running a shoot solo when the budget is tight, and comfortable directing a small
+          crew when it is not.
+        </p>
+        <p class="serif">Concept, shoot, edit, deliver.</p>
+      </div>
+
+      <div class="entry">
+        <h3>Motion Graphics</h3>
+        <p class="body">
+          Titles, lower thirds, animated logos, and social cutdowns. Motion is where a
+          static identity proves whether it was built properly, so this usually runs
+          alongside the branding rather than after it.
+        </p>
+        <p class="serif">Where the identity starts moving.</p>
+      </div>
+
+      <div class="entry">
+        <h3>Music &amp; Sound</h3>
+        <p class="body">
+          Track beds, sound design, and audio cleanup for video and podcast work.
+          Sound is half of what makes an edit feel finished and it is usually the first
+          thing to get cut from a schedule.
+        </p>
+        <p class="serif">The half of video nobody budgets for.</p>
+      </div>
+
+      <div class="entry">
+        <h3>Podcast &amp; Presentations</h3>
+        <p class="body">
+          Episode production end to end, and decks that hold up in a room rather than
+          just on a screen. Both are really the same problem: making a long argument
+          hold someone's attention.
+        </p>
+        <p class="serif">Long-form, made to hold up.</p>
+      </div>
+
+      <div class="entry">
+        <h3>Content Strategy</h3>
+        <p class="body">
+          Working out the calendar, the formats, and the process behind the output so a
+          channel can keep running without me. This is the part most people skip, and
+          it is the reason their social presence stalls after a month.
+        </p>
+        <p class="serif">The process behind it all.</p>
+      </div>
+    </section>
+
+    <!-- ---------- NETWORK ---------- -->
+    <section class="sect" id="network">
+      <h2 class="display">+ Network</h2>
+
+      <div class="entry">
+        <h3>Selected Clients &amp; Collaborators</h3>
+        <p class="runon">
+          UBE Media<span class="slash">/</span>Yukos<span class="slash">/</span>Plus 63
+        </p>
+        <div class="placeholder">
+          <p class="serif" style="opacity:1">
+            Add the rest here, separated by slashes, no spaces &mdash; the reference sets
+            them as one continuous run-on rather than a list. Include brands, orgs, schools,
+            and anyone you have produced for, even unpaid.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- FEATURES ---------- -->
+    <section class="sect" id="features">
+      <h2 class="display">Features</h2>
+
+      <div class="entry">
+        <h3>Selected Awards &amp; Recognition</h3>
+        <div class="placeholder">
+          <p class="serif" style="opacity:1">
+            You mentioned leading a team to a national competition placement &mdash; that
+            belongs here, but I do not know the competition name, the year, or the
+            placement, so I have not written it for you. Format it like:
+            Competition Name, Placement, Year<span class="slash">/</span>Next One, Placement, Year
+          </p>
+        </div>
+      </div>
+
+      <div class="entry">
+        <h3>Selected Features &amp; Publications</h3>
+        <div class="placeholder">
+          <p class="serif" style="opacity:1">
+            Any feature, interview, repost, or publication. If there are none yet, delete
+            this whole entry rather than leaving it empty &mdash; an empty section reads
+            worse than an absent one.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </section>
+</main>
+
+<footer class="infobar">
+  <span>Manila 31&deg;</span><span class="sep">|</span>
+  <span>Keril Priola</span><span class="sep">|</span>
+  <span class="quiet">Multimedia &amp; Marketing</span><span class="sep">|</span>
+  <a href="mailto:priolakerilm@gmail.com">priolakerilm@gmail.com</a>
+</footer>
+
+<script>
+(function(){
+  const doc     = document.getElementById('doc');
+  const anchors = [...document.querySelectorAll('[data-anchor]')];
+  const sects   = anchors.map(a => document.getElementById(a.dataset.anchor));
+
+  /* The right column is its own scroll container, so an ordinary hash jump
+     would scroll the page instead. Scroll the container directly. */
+  anchors.forEach((a, i) => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = sects[i];
+      if(!target) return;
+      const wide = window.matchMedia('(min-width:1001px)').matches;
+      if(wide) doc.scrollTo({ top: target.offsetTop - 20, behavior:'smooth' });
+      else     target.scrollIntoView({ behavior:'smooth', block:'start' });
+      history.replaceState(null, '', '#' + a.dataset.anchor);
+    });
+  });
+
+  /* Mark the section currently in view, using the same active pill the
+     work page uses for its filters */
+  const mark = id => anchors.forEach(a =>
+    a.classList.toggle('pill--active', a.dataset.anchor === id));
+
+  const wide = window.matchMedia('(min-width:1001px)');
+  const io = new IntersectionObserver(entries => {
+    const seen = entries.filter(e => e.isIntersecting)
+                        .sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+    if(seen) mark(seen.target.id);
+  }, { root: wide.matches ? doc : null, rootMargin: '0px 0px -70% 0px', threshold: 0 });
+  sects.forEach(s => s && io.observe(s));
+
+  /* Deep link support: /info.html#services */
+  const hash = location.hash.replace('#','');
+  if(hash){
+    const i = anchors.findIndex(a => a.dataset.anchor === hash);
+    if(i > -1) setTimeout(() => anchors[i].click(), 60);
+  }else{
+    mark('about');
+  }
+
+  /* Collapse toggle, matching the Work filter behaviour */
+  const box = document.getElementById('anchors');
+  const toggle = document.getElementById('collapse');
+  toggle.addEventListener('click', () => {
+    const collapsed = box.dataset.collapsed === 'true';
+    box.dataset.collapsed = String(!collapsed);
+    toggle.setAttribute('aria-expanded', String(collapsed));
+    toggle.innerHTML = collapsed ? '&minus;' : '+';
+    toggle.setAttribute('aria-label', collapsed ? 'Collapse contents' : 'Expand contents');
+  });
+})();
+</script>
+
+</body>
+</html>
