@@ -148,9 +148,16 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--spacing-13);margin-bottom:var(--spacing-29);
 }
-/* Two controls sit in the Info head: a link through to the full page,
-   and the collapse toggle that matches Work. */
-.head-actions{display:flex;gap:var(--spacing-7);flex:0 0 auto;}
+/* The Info heading is the way through to the full page, so the section keeps
+   a single control — the collapse toggle — exactly like Work. */
+.headlink{
+  text-decoration:underline;
+  text-decoration-thickness:var(--stroke);
+  text-underline-offset:8px;
+  text-decoration-color:rgba(229,217,182,.45);
+  transition:text-decoration-color .2s ease;
+}
+.headlink:hover{text-decoration-color:var(--color-ember);}
 .pillrow{display:flex;flex-wrap:wrap;gap:var(--spacing-7);}
 
 /* Collapsible block, same behaviour as the filter grid */
@@ -344,13 +351,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     <hr class="rule">
 
     <div class="section-head">
-      <h2 class="display" id="info">Info</h2>
-      <div class="head-actions">
-        <a class="pill pill--icon" href="info.html"
-           aria-label="Open the full info page" title="Open the full info page">+</a>
-        <button class="pill pill--icon" id="collapseInfo" aria-expanded="true"
-                aria-controls="infobox" aria-label="Collapse info">&minus;</button>
-      </div>
+      <h2 class="display"><a class="headlink" id="info" href="info.html"
+          title="Open the full info page">Info</a></h2>
+      <button class="pill pill--icon" id="collapseInfo" aria-expanded="true"
+              aria-controls="infobox" aria-label="Collapse info">&minus;</button>
     </div>
 
     <div class="stack" id="infobox" data-collapsed="false" aria-labelledby="info">
