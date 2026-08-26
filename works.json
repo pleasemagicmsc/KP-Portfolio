@@ -2,17 +2,149 @@
   "works": [
     {
       "id": "w_0hpr6y7",
-      "title": "UBE Media - Intern Showcase",
+      "title": "UBE Media - Social Media Posts",
       "kind": "",
       "year": "2025",
       "categories": [
         "graphics"
       ],
       "type": "image",
-      "src": "Assets/ube-media-intern-showcase.webp",
+      "src": "Assets/ube-media-social-media-posts-01.webp",
       "aspect": 1,
       "order": 1,
-      "poster": "Assets/ube-media-intern-showcase.webp"
+      "poster": "Assets/ube-media-social-media-posts-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/ube-media-social-media-posts-01.webp",
+          "poster": "Assets/ube-media-social-media-posts-01.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-social-media-posts-02.webp",
+          "poster": "Assets/ube-media-social-media-posts-02.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-social-media-posts-03.webp",
+          "poster": "Assets/ube-media-social-media-posts-03.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-social-media-posts-04.webp",
+          "poster": "Assets/ube-media-social-media-posts-04.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-social-media-posts-05.webp",
+          "poster": "Assets/ube-media-social-media-posts-05.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-social-media-posts-06.webp",
+          "poster": "Assets/ube-media-social-media-posts-06.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-social-media-posts-07.webp",
+          "poster": "Assets/ube-media-social-media-posts-07.webp",
+          "aspect": 1
+        }
+      ]
+    },
+    {
+      "id": "w_cth4pid",
+      "title": "NMM - Summer Fridays",
+      "kind": "Graphics",
+      "year": "2026",
+      "categories": [
+        "graphics"
+      ],
+      "type": "image",
+      "src": "Assets/nmm-summer-fridays-01.webp",
+      "aspect": 1,
+      "order": 2,
+      "poster": "Assets/nmm-summer-fridays-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/nmm-summer-fridays-01.webp",
+          "poster": "Assets/nmm-summer-fridays-01.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/nmm-summer-fridays-02.webp",
+          "poster": "Assets/nmm-summer-fridays-02.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/nmm-summer-fridays-03.webp",
+          "poster": "Assets/nmm-summer-fridays-03.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/nmm-summer-fridays-04.webp",
+          "poster": "Assets/nmm-summer-fridays-04.webp",
+          "aspect": 1
+        }
+      ]
+    },
+    {
+      "id": "w_1jjtsye",
+      "title": "GScore - Brand Bible",
+      "kind": "Graphics",
+      "year": "2026",
+      "categories": [
+        "graphics",
+        "presentations",
+        "branding"
+      ],
+      "type": "image",
+      "src": "Assets/gscore-brand-bible-01.webp",
+      "aspect": 1.7778,
+      "order": 3,
+      "poster": "Assets/gscore-brand-bible-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/gscore-brand-bible-01.webp",
+          "poster": "Assets/gscore-brand-bible-01.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/gscore-brand-bible-02.webp",
+          "poster": "Assets/gscore-brand-bible-02.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/gscore-brand-bible-03.webp",
+          "poster": "Assets/gscore-brand-bible-03.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/gscore-brand-bible-04.webp",
+          "poster": "Assets/gscore-brand-bible-04.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/gscore-brand-bible-05.webp",
+          "poster": "Assets/gscore-brand-bible-05.webp",
+          "aspect": 1.7778
+        }
+      ]
     },
     {
       "id": "w_0fu0mhr",
@@ -25,7 +157,7 @@
       "type": "image",
       "src": "Assets/ube-media-holy-week-campaign-01.webp",
       "aspect": 1,
-      "order": 2,
+      "order": 4,
       "poster": "Assets/ube-media-holy-week-campaign-01.webp",
       "slides": [
         {
@@ -71,7 +203,7 @@
       "type": "image",
       "src": "Assets/ube-media-service-01.webp",
       "aspect": 1,
-      "order": 3,
+      "order": 5,
       "poster": "Assets/ube-media-service-01.webp",
       "slides": [
         {
@@ -95,6 +227,22 @@
       ]
     },
     {
+      "id": "w_yu0vrdo",
+      "title": "SANDBOX PH - AVP",
+      "kind": "Video",
+      "year": "2026",
+      "categories": [
+        "video",
+        "motion",
+        "music",
+        "sfx"
+      ],
+      "type": "youtube",
+      "src": "LTZOMYRz0wA",
+      "aspect": 1.7778,
+      "order": 6
+    },
+    {
       "id": "w_b0htysf",
       "title": "Yukos",
       "kind": "",
@@ -106,7 +254,21 @@
       "type": "youtube",
       "src": "gPr8PrXYaQ0",
       "aspect": null,
-      "order": 4
+      "order": 7
+    },
+    {
+      "id": "w_cqzx019",
+      "title": "JMA - Ati-Atihan Poster",
+      "kind": "Graphics",
+      "year": "2026",
+      "categories": [
+        "graphics"
+      ],
+      "type": "image",
+      "src": "Assets/jma-ati-atihan-poster.webp",
+      "aspect": 0.7071,
+      "order": 8,
+      "poster": "Assets/jma-ati-atihan-poster.webp"
     },
     {
       "id": "w_az4u8j6",
@@ -122,7 +284,21 @@
       "type": "youtube",
       "src": "wT15qy6ZNW0",
       "aspect": null,
-      "order": 5
+      "order": 9
+    },
+    {
+      "id": "w_yx4g00o",
+      "title": "Net 25 - ML Tournament Teaser",
+      "kind": "Video",
+      "year": "2026",
+      "categories": [
+        "video",
+        "motion"
+      ],
+      "type": "youtube",
+      "src": "I2WA85a4wjE",
+      "aspect": 1.7778,
+      "order": 10
     }
   ]
 }
