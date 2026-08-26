@@ -40,6 +40,12 @@
   --footer-h:58px;
   --stroke:1px;
   --dim:.68;
+
+  /* Slow, then quick, then slow — cubic-bezier(0.42, 0, 0.58, 1) is the
+     canonical ease-in-out curve. One token so every motion matches. */
+  --ease:cubic-bezier(0.42, 0, 0.58, 1);
+  --dur:.45s;
+  --dur-fast:.22s;
 }
 
 *{box-sizing:border-box;}
@@ -135,7 +141,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   background:transparent;color:var(--color-sand);
   padding:var(--spacing-10) var(--spacing-13);
   font-size:var(--text-body);line-height:1;white-space:nowrap;
-  transition:border-color .2s ease, background-color .2s ease, opacity .2s ease;
+  transition:border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
 }
 .pill:hover{border-color:var(--color-ember);}
 .pill--active,.pill--active:hover{
@@ -160,10 +166,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .stack{
   overflow:hidden;
   margin-top:var(--spacing-29);
-  transition:max-height .35s ease, opacity .25s ease, margin-top .35s ease;
-  max-height:900px;
+  transition:max-height var(--dur) var(--ease), opacity var(--dur) var(--ease), margin-top var(--dur) var(--ease);
 }
-.stack[data-collapsed="true"]{max-height:0;opacity:0;margin-top:0;}
+.stack[data-collapsed="true"]{opacity:0;margin-top:0;}
 
 
 /* Email copies to the clipboard. Fixed width so swapping the label to
@@ -523,15 +528,42 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   }
 
   /* Collapse toggle, matching the Work filter behaviour */
+
+/* ---------- Collapse / expand ----------
+   max-height cannot animate to 'auto', and animating toward a guessed ceiling
+   makes the curve finish long before the box does — which is what stops an
+   ease looking like an ease. So measure the real height, animate to exactly
+   that, then release the constraint so the content can reflow freely. */
+function expand(box){
+  box.dataset.collapsed = 'false';
+  box.style.maxHeight = box.scrollHeight + 'px';
+  box.addEventListener('transitionend', function done(e){
+    if(e.propertyName !== 'max-height') return;
+    box.style.maxHeight = 'none';
+    box.removeEventListener('transitionend', done);
+  });
+}
+function collapse(box){
+  box.style.maxHeight = box.scrollHeight + 'px';
+  void box.offsetHeight;              /* force a reflow so the next value animates */
+  box.dataset.collapsed = 'true';
+  box.style.maxHeight = '0px';
+}
+function setOpen(box, open){ open ? expand(box) : collapse(box); }
+function initCollapsible(box){
+  box.style.maxHeight = box.dataset.collapsed === 'true' ? '0px' : 'none';
+}
+
   const box = document.getElementById('infobox');
   const toggle = document.getElementById('collapse');
+  initCollapsible(box);
   toggle.addEventListener('click', () => {
-    const collapsed = box.dataset.collapsed === 'true';
-    box.dataset.collapsed = String(!collapsed);
-    toggle.setAttribute('aria-expanded', String(collapsed));
-    toggle.innerHTML = collapsed ? '&minus;' : '+';
-    toggle.setAttribute('aria-label', collapsed ? 'Collapse info' : 'Expand info');
-    toggle.setAttribute('title', collapsed ? 'Collapse' : 'Expand');
+    const willOpen = box.dataset.collapsed === 'true';
+    setOpen(box, willOpen);
+    toggle.setAttribute('aria-expanded', String(willOpen));
+    toggle.innerHTML = willOpen ? '&minus;' : '+';
+    toggle.setAttribute('aria-label', willOpen ? 'Collapse info' : 'Expand info');
+    toggle.setAttribute('title', willOpen ? 'Collapse' : 'Expand');
   });
 
   /* A deep link should open the section it points at */
