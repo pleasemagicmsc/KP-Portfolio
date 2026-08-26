@@ -145,7 +145,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--spacing-20);}
 .section-head{
   display:flex;align-items:center;justify-content:space-between;
-  gap:var(--spacing-13);margin-bottom:var(--spacing-29);
+  gap:var(--spacing-13);
+  /* No bottom margin. The collapsible block below owns the spacing, so a
+     collapsed section measures exactly the same as one with nothing under it. */
+  margin-bottom:0;
 }
 /* A section whose full version lives on another page shows a '+' that goes
    there. A section that expands in place shows the '−' collapse toggle. */
@@ -161,10 +164,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   display:flex;flex-wrap:wrap;
   gap:var(--spacing-7) var(--spacing-7);
   overflow:hidden;
-  transition:max-height .35s ease, opacity .25s ease;
+  margin-top:var(--spacing-29);
+  transition:max-height .35s ease, opacity .25s ease, margin-top .35s ease;
   max-height:1200px;
 }
-.filters[data-collapsed="true"]{max-height:0;opacity:0;}
+.filters[data-collapsed="true"]{max-height:0;opacity:0;margin-top:0;}
 .filters .pill{cursor:pointer;}
 
 /* ============================================================

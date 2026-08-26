@@ -137,16 +137,20 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--spacing-20);}
 .section-head{
   display:flex;align-items:center;justify-content:space-between;
-  gap:var(--spacing-13);margin-bottom:var(--spacing-29);
+  gap:var(--spacing-13);
+  /* No bottom margin. The collapsible block below owns the spacing, so a
+     collapsed section measures exactly the same as one with nothing under it. */
+  margin-bottom:0;
 }
 .pillrow{display:flex;flex-wrap:wrap;gap:var(--spacing-7);}
 /* Collapsible block, same behaviour as the filter grid on the work page */
 .stack{
   overflow:hidden;
-  transition:max-height .35s ease, opacity .25s ease;
+  margin-top:var(--spacing-29);
+  transition:max-height .35s ease, opacity .25s ease, margin-top .35s ease;
   max-height:900px;
 }
-.stack[data-collapsed="true"]{max-height:0;opacity:0;}
+.stack[data-collapsed="true"]{max-height:0;opacity:0;margin-top:0;}
 
 
 /* Contact, grouped one field per line */
@@ -262,11 +266,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     <!-- Maximized, this section carries the summary and the section anchors -->
     <div class="section-head">
       <h2 class="display" id="infohead">Info</h2>
-      <button class="pill pill--icon" id="collapse" aria-expanded="false"
-              aria-controls="infobox" aria-label="Expand info" title="Expand">+</button>
+      <button class="pill pill--icon" id="collapse" aria-expanded="true"
+              aria-controls="infobox" aria-label="Collapse info" title="Collapse">&minus;</button>
     </div>
 
-    <div class="stack" id="infobox" data-collapsed="true" aria-labelledby="infohead">
+    <div class="stack" id="infobox" data-collapsed="false" aria-labelledby="infohead">
       <p class="body">
         I build brands and content pipelines that actually run, from social presence
         to video edits to figuring out the process behind it all. I've produced solo
