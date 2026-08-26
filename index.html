@@ -151,14 +151,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
    there. A section that expands in place shows the '−' collapse toggle. */
 .pillrow{display:flex;flex-wrap:wrap;gap:var(--spacing-7);}
 
-/* Collapsible block, same behaviour as the filter grid */
-.stack{
-  overflow:hidden;
-  transition:max-height .35s ease, opacity .25s ease;
-  max-height:900px;
-}
-.stack[data-collapsed="true"]{max-height:0;opacity:0;}
-
 /* Contact, grouped one field per line */
 .contact-group{margin-top:var(--spacing-29);}
 .contact-group + .contact-group{margin-top:var(--spacing-20);}
@@ -334,34 +326,20 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
     <div class="section-head">
       <h2 class="display" id="work">Work</h2>
-      <button class="pill pill--icon" id="collapse" aria-expanded="true" aria-controls="filters" aria-label="Collapse filters">&minus;</button>
+      <button class="pill pill--icon" id="collapse" aria-expanded="false" aria-controls="filters" aria-label="Expand work" title="Expand">+</button>
     </div>
 
-    <div class="filters" id="filters" data-collapsed="false" role="group" aria-labelledby="work"></div>
+    <div class="filters" id="filters" data-collapsed="true" role="group" aria-labelledby="work"></div>
 
     <hr class="rule">
 
     <div class="section-head">
       <h2 class="display" id="info">Info</h2>
-      <button class="pill pill--icon" id="infoToggle" aria-expanded="true"
-              aria-controls="infobox" aria-label="Collapse info"
-              title="Collapse">&minus;</button>
+      <a class="pill pill--icon" href="info.html"
+         aria-label="Open the info page" title="Open the info page">+</a>
     </div>
 
-    <div class="stack" id="infobox" data-collapsed="false" aria-labelledby="info">
-    <p class="body">
-      I build brands and content pipelines that actually run, from social presence
-      to video edits to figuring out the process behind it all. I've produced solo
-      for years, led a team to a national competition placement, and I pick up new
-      tools fast enough that not knowing something yet has never really slowed me
-      down. I work well independently, but honestly, most of what I'm proud of came
-      from building something alongside a team.
-    </p>
-    <p class="serif" style="margin-top:var(--spacing-20)">
-      Open to new opportunities in marketing, content, and multimedia production.
-      Let's build something great together.
-    </p>
-    </div>
+
 
     <hr class="rule">
 
@@ -713,25 +691,6 @@ document.addEventListener('keydown', e => {
   if(e.key === 'ArrowRight') step(1);
 });
 
-/* ---------- Info section ----------
-   Maximized ('−'): the summary is shown. Clicking collapses it.
-   Collapsed  ('+'): the summary is hidden, and the button now opens the
-   full info page — the '+' state always means "there is more than this". */
-const infobox = document.getElementById('infobox');
-const infoToggle = document.getElementById('infoToggle');
-infoToggle.addEventListener('click', () => {
-  const collapsed = infobox.dataset.collapsed === 'true';
-  if(collapsed){
-    window.location.href = 'info.html';       // already minimized — go to the page
-    return;
-  }
-  infobox.dataset.collapsed = 'true';
-  infoToggle.innerHTML = '+';
-  infoToggle.setAttribute('aria-expanded', 'false');
-  infoToggle.setAttribute('aria-label', 'Open the info page');
-  infoToggle.setAttribute('title', 'Open the info page');
-});
-
 /* ---------- Collapse toggle ---------- */
 const toggle = document.getElementById('collapse');
 toggle.addEventListener('click', () => {
@@ -739,7 +698,8 @@ toggle.addEventListener('click', () => {
   $filters.dataset.collapsed = String(!collapsed);
   toggle.setAttribute('aria-expanded', String(collapsed));
   toggle.innerHTML = collapsed ? '&minus;' : '+';
-  toggle.setAttribute('aria-label', collapsed ? 'Collapse filters' : 'Expand filters');
+  toggle.setAttribute('aria-label', collapsed ? 'Collapse work' : 'Expand work');
+  toggle.setAttribute('title', collapsed ? 'Collapse' : 'Expand');
 });
 
 load();
