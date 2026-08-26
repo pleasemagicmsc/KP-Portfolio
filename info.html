@@ -83,10 +83,23 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   padding:var(--spacing-29) var(--spacing-29) 80px;
   border-right:var(--stroke) solid rgba(229,217,182,.45);
 }
+/* The document column inverts: Sand ground, Forest ink. The same two colours
+   swapped over. Scoped to .doc — :root and the left column are untouched. */
 .doc{
-  padding:var(--spacing-29) var(--spacing-29) 120px;
-  background:linear-gradient(180deg, rgba(51,65,47,.55) 0%, rgba(51,65,47,0) 40%);
+  --doc-pad:var(--spacing-29);
+  padding:var(--doc-pad) var(--doc-pad) 120px;
+  background:var(--color-sand);
+  color:var(--color-forest);
 }
+.doc .display,
+.doc .body,
+.doc .serif,
+.doc h3,
+.doc .runon{color:var(--color-forest);}
+.doc .entry + .entry{border-top-color:rgba(64,81,59,.28);}
+.doc .placeholder{border-color:rgba(64,81,59,.45);}
+.doc ::selection{background:var(--color-forest);color:var(--color-sand);}
+.doc :focus-visible{outline-color:var(--color-forest);}
 
 /* ============================================================
    TYPE
@@ -174,15 +187,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .sect + .sect{margin-top:96px;}
 .sect > .display{margin-bottom:var(--spacing-29);}
 
+/* Full bleed. Widen by the column padding on each side and pull back by the
+   same amount, so the photo meets the divider on the left and the window edge
+   on the right. No fixed ratio and no object-fit — the element takes the
+   file's own height, so there are no bands and no crop. */
 .portrait{
   display:block;
-  width:100%;
-  /* No fixed ratio and no object-fit. The element takes the photo's own
-     height, so the border sits flush against the image with no bands —
-     whatever proportions the file happens to have. */
+  width:calc(100% + (var(--doc-pad) * 2));
+  margin-left:calc(var(--doc-pad) * -1);
+  margin-right:calc(var(--doc-pad) * -1);
   height:auto;
   background:var(--color-deep);
-  border:var(--stroke) solid rgba(229,217,182,.45);
+  border:0;
 }
 .caption{margin-top:var(--spacing-12);}
 
@@ -239,7 +255,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   .split{display:block;height:auto;}
   .column{overflow:visible;}
   .control{border-right:0;border-bottom:var(--stroke) solid rgba(229,217,182,.45);padding:var(--spacing-20);}
-  .doc{padding:var(--spacing-20) var(--spacing-20) calc(var(--footer-h) + 40px);}
+  .doc{--doc-pad:var(--spacing-20);padding:var(--doc-pad) var(--doc-pad) calc(var(--footer-h) + 40px);}
   .masthead{flex-direction:column;gap:var(--spacing-20);}
   .pill--icon{width:38px;height:38px;}
   .sect + .sect{margin-top:64px;}
@@ -502,7 +518,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       if(note) note.hidden = !portrait.currentSrc.includes('placeholder');
     };
     portrait.addEventListener('load', settle);
-    /* A cached image can finish before this runs, so the load event never fires */
+    /* A cached image can finish before this runs, so load never fires */
     if(portrait.complete && portrait.naturalWidth) settle();
   }
 
