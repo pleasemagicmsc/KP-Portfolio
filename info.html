@@ -153,6 +153,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .stack[data-collapsed="true"]{max-height:0;opacity:0;margin-top:0;}
 
 
+/* Email copies to the clipboard. Fixed width so swapping the label to
+   COPIED does not make the pill jump. */
+.pill--copy{min-width:8.5ch;justify-content:center;cursor:pointer;}
+.visually-hidden{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;
+}
+
 /* Contact, grouped one field per line */
 .contact-group{margin-top:var(--spacing-29);}
 .contact-group + .contact-group{margin-top:var(--spacing-20);}
@@ -291,8 +299,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       <nav class="pillrow" id="anchors" aria-label="Sections" style="margin-top:var(--spacing-29)">
         <a class="pill" href="#about"    data-anchor="about">About</a>
         <a class="pill" href="#services" data-anchor="services">Services</a>
-        <a class="pill" href="#network"  data-anchor="network">+ Network</a>
-        <a class="pill" href="#features" data-anchor="features">Features</a>
+          <a class="pill" href="#features" data-anchor="features">Features</a>
       </nav>
     </div>
 
@@ -302,19 +309,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
     <div class="contact-group">
       <div>Keril Priola</div>
+      <div class="where">Laguna, Philippines</div>
       <div class="where">Multimedia &amp; Marketing</div>
-      <div><a href="mailto:priolakerilm@gmail.com">priolakerilm@gmail.com</a></div>
-    </div>
-
-    <div class="contact-group">
-      <div class="where">Philippines</div>
-      <div><a href="https://www.linkedin.com/in/hello-its-kp/" target="_blank" rel="noopener noreferrer">linkedin.com/in/hello-its-kp</a></div>
     </div>
 
     <div class="pillrow" style="margin-top:var(--spacing-29)">
-      <a class="pill" href="mailto:priolakerilm@gmail.com">Email</a>
-      <a class="pill" href="https://www.linkedin.com/in/hello-its-kp/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <button class="pill pill--copy" id="copyEmail"
+              data-email="priolakerilm@gmail.com"
+              aria-label="Copy email address">Email</button>
+      <a class="pill" href="https://www.linkedin.com/in/hello-its-kp/"
+         target="_blank" rel="noopener noreferrer">LinkedIn</a>
     </div>
+    <span class="visually-hidden" id="copyStatus" role="status" aria-live="polite"></span>
 
   </section>
 
@@ -394,25 +400,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
           it is the reason their social presence stalls after a month.
         </p>
         <p class="serif">The process behind it all.</p>
-      </div>
-    </section>
-
-    <!-- ---------- NETWORK ---------- -->
-    <section class="sect" id="network">
-      <h2 class="display">+ Network</h2>
-
-      <div class="entry">
-        <h3>Selected Clients &amp; Collaborators</h3>
-        <p class="runon">
-          UBE Media<span class="slash">/</span>Yukos<span class="slash">/</span>Plus 63
-        </p>
-        <div class="placeholder">
-          <p class="serif" style="opacity:1">
-            Add the rest here, separated by slashes, no spaces &mdash; the reference sets
-            them as one continuous run-on rather than a list. Include brands, orgs, schools,
-            and anyone you have produced for, even unpaid.
-          </p>
-        </div>
       </div>
     </section>
 
@@ -537,6 +524,55 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     if(box.dataset.collapsed === 'true') toggle.click();
   }
 })();
+
+/* ---------- Email copy ----------
+   Click: highlight with the same active pill the work filters use,
+   swap the label to COPIED, then restore after two seconds. */
+(function(){
+  const btn = document.getElementById('copyEmail');
+  if(!btn) return;
+  const status = document.getElementById('copyStatus');
+  const email = btn.dataset.email;
+  let timer = null;
+
+  async function copy(text){
+    try{
+      if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      /* http:// and older browsers have no clipboard API */
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly','');
+      ta.style.cssText = 'position:absolute;left:-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    }catch(e){ return false; }
+  }
+
+  btn.addEventListener('click', async () => {
+    const ok = await copy(email);
+    clearTimeout(timer);
+    if(ok){
+      btn.classList.add('pill--active');
+      btn.textContent = 'COPIED';
+      if(status) status.textContent = email + ' copied to clipboard';
+    }else{
+      btn.textContent = email;          /* nothing copied — show it to select by hand */
+      if(status) status.textContent = 'Copy failed. The address is ' + email;
+    }
+    timer = setTimeout(() => {
+      btn.classList.remove('pill--active');
+      btn.textContent = 'Email';
+      if(status) status.textContent = '';
+    }, 2000);
+  });
+})();
+
 </script>
 
 </body>
