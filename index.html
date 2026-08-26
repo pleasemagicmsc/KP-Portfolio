@@ -148,16 +148,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--spacing-13);margin-bottom:var(--spacing-29);
 }
-/* The Info heading is the way through to the full page, so the section keeps
-   a single control — the collapse toggle — exactly like Work. */
-.headlink{
-  text-decoration:underline;
-  text-decoration-thickness:var(--stroke);
-  text-underline-offset:8px;
-  text-decoration-color:rgba(229,217,182,.45);
-  transition:text-decoration-color .2s ease;
-}
-.headlink:hover{text-decoration-color:var(--color-ember);}
+/* A section whose full version lives on another page shows a '+' that goes
+   there. A section that expands in place shows the '−' collapse toggle. */
 .pillrow{display:flex;flex-wrap:wrap;gap:var(--spacing-7);}
 
 /* Collapsible block, same behaviour as the filter grid */
@@ -351,13 +343,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     <hr class="rule">
 
     <div class="section-head">
-      <h2 class="display"><a class="headlink" id="info" href="info.html"
-          title="Open the full info page">Info</a></h2>
-      <button class="pill pill--icon" id="collapseInfo" aria-expanded="true"
-              aria-controls="infobox" aria-label="Collapse info">&minus;</button>
+      <h2 class="display" id="info">Info</h2>
+      <a class="pill pill--icon" href="info.html"
+         aria-label="Open the info page" title="Open the info page">+</a>
     </div>
 
-    <div class="stack" id="infobox" data-collapsed="false" aria-labelledby="info">
+    <div class="stack" aria-labelledby="info">
     <p class="body">
       I build brands and content pipelines that actually run, from social presence
       to video edits to figuring out the process behind it all. I've produced solo
@@ -720,17 +711,6 @@ document.addEventListener('keydown', e => {
   if(e.key === 'Escape') close();
   if(e.key === 'ArrowLeft') step(-1);
   if(e.key === 'ArrowRight') step(1);
-});
-
-/* ---------- Info collapse ---------- */
-const infobox = document.getElementById('infobox');
-const infoToggle = document.getElementById('collapseInfo');
-infoToggle.addEventListener('click', () => {
-  const collapsed = infobox.dataset.collapsed === 'true';
-  infobox.dataset.collapsed = String(!collapsed);
-  infoToggle.setAttribute('aria-expanded', String(collapsed));
-  infoToggle.innerHTML = collapsed ? '&minus;' : '+';
-  infoToggle.setAttribute('aria-label', collapsed ? 'Collapse info' : 'Expand info');
 });
 
 /* ---------- Collapse toggle ---------- */
