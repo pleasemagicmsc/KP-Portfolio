@@ -168,8 +168,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 .portrait{
   width:100%;
-  aspect-ratio:16/10;
-  object-fit:cover;
+  /* Set from the file's real dimensions on load, so a portrait-orientation
+     photo is not cropped to a landscape box. 16/10 is only the fallback. */
+  aspect-ratio:var(--ar, 16/10);
+  max-height:78vh;
+  object-fit:contain;
+  object-position:center;
   display:block;
   background:var(--color-deep);
   border:var(--stroke) solid rgba(229,217,182,.45);
@@ -320,9 +324,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     <!-- ---------- ABOUT ---------- -->
     <section class="sect" id="about">
       <h2 class="display">About</h2>
-      <img class="portrait" src="Assets/portrait-placeholder.svg"
+      <img class="portrait" id="portrait" src="Assets/portrait.webp"
            alt="Keril Priola" width="1600" height="1000">
-      <p class="serif caption">Replace with a photograph of yourself, 1600&times;1000 or wider.</p>
+      <p class="serif caption" id="portraitNote" hidden>
+        No photograph found. Save yours as <b>Assets/portrait.webp</b> &mdash;
+        or .jpg, .png, .svg &mdash; and it will appear here.
+      </p>
     </section>
 
     <!-- ---------- SERVICES ---------- -->
@@ -487,6 +494,30 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     if(i > -1){ reveal(); setTimeout(() => anchors[i].click(), 60); }
   }else{
     mark('about');
+  }
+
+  /* Portrait: try each extension in turn, then the placeholder. Once one
+     loads, take its real proportions so nothing gets cropped. */
+  const portrait = document.getElementById('portrait');
+  const note = document.getElementById('portraitNote');
+  const TRY = ['Assets/portrait.webp','Assets/portrait.jpg','Assets/portrait.jpeg',
+               'Assets/portrait.png','Assets/portrait.svg','Assets/portrait-placeholder.svg'];
+  let attempt = 0;
+  if(portrait){
+    portrait.addEventListener('error', () => {
+      if(++attempt < TRY.length){
+        portrait.src = TRY[attempt];
+      }else{
+        portrait.hidden = true;
+        if(note) note.hidden = false;
+      }
+    });
+    portrait.addEventListener('load', () => {
+      const w = portrait.naturalWidth, h = portrait.naturalHeight;
+      if(w && h) portrait.style.setProperty('--ar', String(Math.min(2.4, Math.max(0.6, w/h))));
+      /* Still on the placeholder means there is no real photograph yet */
+      if(note) note.hidden = !portrait.currentSrc.includes('placeholder');
+    });
   }
 
   /* Collapse toggle, matching the Work filter behaviour */
