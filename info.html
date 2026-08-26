@@ -163,12 +163,25 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 }
 .pillrow{display:flex;flex-wrap:wrap;gap:var(--spacing-7);}
 /* Collapsible block, same behaviour as the filter grid on the work page */
-.stack{
-  overflow:hidden;
+/* ---------- Collapsible ----------
+   grid-template-rows animates between 0fr and 1fr, which resolves to the
+   content's real height without anyone measuring it. No JS, no scrollHeight,
+   no transitionend. The child must carry overflow:hidden and min-height:0
+   or it refuses to shrink below its content. */
+.collapsible{
+  display:grid;
+  grid-template-rows:1fr;
   margin-top:var(--spacing-29);
-  transition:max-height var(--dur) var(--ease), opacity var(--dur) var(--ease), margin-top var(--dur) var(--ease);
+  transition:grid-template-rows var(--dur) var(--ease),
+             opacity var(--dur) var(--ease),
+             margin-top var(--dur) var(--ease);
 }
-.stack[data-collapsed="true"]{opacity:0;margin-top:0;}
+.collapsible > *{overflow:hidden;min-height:0;}
+.collapsible[data-collapsed="true"]{
+  grid-template-rows:0fr;
+  opacity:0;
+  margin-top:0;
+}
 
 
 /* Email copies to the clipboard. Fixed width so swapping the label to
@@ -301,7 +314,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
               aria-controls="infobox" aria-label="Collapse info" title="Collapse">&minus;</button>
     </div>
 
-    <div class="stack" id="infobox" data-collapsed="false" aria-labelledby="infohead">
+    <div class="collapsible" id="infobox" data-collapsed="false" aria-labelledby="infohead">
+      <div>
       <p class="body">
         I build brands and content pipelines that actually run, from social presence
         to video edits to figuring out the process behind it all. I've produced solo
@@ -320,6 +334,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
         <a class="pill" href="#services" data-anchor="services">Services</a>
           <a class="pill" href="#features" data-anchor="features">Features</a>
       </nav>
+      </div>
     </div>
 
     <hr class="rule">
@@ -529,37 +544,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
   /* Collapse toggle, matching the Work filter behaviour */
 
-/* ---------- Collapse / expand ----------
-   max-height cannot animate to 'auto', and animating toward a guessed ceiling
-   makes the curve finish long before the box does — which is what stops an
-   ease looking like an ease. So measure the real height, animate to exactly
-   that, then release the constraint so the content can reflow freely. */
-function expand(box){
-  box.dataset.collapsed = 'false';
-  box.style.maxHeight = box.scrollHeight + 'px';
-  box.addEventListener('transitionend', function done(e){
-    if(e.propertyName !== 'max-height') return;
-    box.style.maxHeight = 'none';
-    box.removeEventListener('transitionend', done);
-  });
-}
-function collapse(box){
-  box.style.maxHeight = box.scrollHeight + 'px';
-  void box.offsetHeight;              /* force a reflow so the next value animates */
-  box.dataset.collapsed = 'true';
-  box.style.maxHeight = '0px';
-}
-function setOpen(box, open){ open ? expand(box) : collapse(box); }
-function initCollapsible(box){
-  box.style.maxHeight = box.dataset.collapsed === 'true' ? '0px' : 'none';
-}
-
   const box = document.getElementById('infobox');
   const toggle = document.getElementById('collapse');
-  initCollapsible(box);
   toggle.addEventListener('click', () => {
     const willOpen = box.dataset.collapsed === 'true';
-    setOpen(box, willOpen);
+    box.dataset.collapsed = String(!willOpen);
     toggle.setAttribute('aria-expanded', String(willOpen));
     toggle.innerHTML = willOpen ? '&minus;' : '+';
     toggle.setAttribute('aria-label', willOpen ? 'Collapse info' : 'Expand info');

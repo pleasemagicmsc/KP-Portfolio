@@ -174,14 +174,27 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .contact-group .where{opacity:var(--dim);}
 .contact-group a:hover{text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--color-ember);}
 
-.filters{
-  display:flex;flex-wrap:wrap;
-  gap:var(--spacing-7) var(--spacing-7);
-  overflow:hidden;
+/* ---------- Collapsible ----------
+   grid-template-rows animates between 0fr and 1fr, which resolves to the
+   content's real height without anyone measuring it. No JS, no scrollHeight,
+   no transitionend. The child must carry overflow:hidden and min-height:0
+   or it refuses to shrink below its content. */
+.collapsible{
+  display:grid;
+  grid-template-rows:1fr;
   margin-top:var(--spacing-29);
-  transition:max-height var(--dur) var(--ease), opacity var(--dur) var(--ease), margin-top var(--dur) var(--ease);
+  transition:grid-template-rows var(--dur) var(--ease),
+             opacity var(--dur) var(--ease),
+             margin-top var(--dur) var(--ease);
 }
-.filters[data-collapsed="true"]{opacity:0;margin-top:0;}
+.collapsible > *{overflow:hidden;min-height:0;}
+.collapsible[data-collapsed="true"]{
+  grid-template-rows:0fr;
+  opacity:0;
+  margin-top:0;
+}
+
+.filters{display:flex;flex-wrap:wrap;gap:var(--spacing-7) var(--spacing-7);}
 .filters .pill{cursor:pointer;}
 
 /* ============================================================
@@ -343,10 +356,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
     <div class="section-head">
       <h2 class="display" id="work">Work</h2>
-      <button class="pill pill--icon" id="collapse" aria-expanded="true" aria-controls="filters" aria-label="Collapse work" title="Collapse">&minus;</button>
+      <button class="pill pill--icon" id="collapse" aria-expanded="true" aria-controls="workBox" aria-label="Collapse work" title="Collapse">&minus;</button>
     </div>
 
-    <div class="filters" id="filters" data-collapsed="false" role="group" aria-labelledby="work"></div>
+    <div class="collapsible" id="workBox" data-collapsed="false">
+      <div><div class="filters" id="filters" role="group" aria-labelledby="work"></div></div>
+    </div>
 
     <hr class="rule">
 
@@ -708,37 +723,13 @@ document.addEventListener('keydown', e => {
 });
 
 
-/* ---------- Collapse / expand ----------
-   max-height cannot animate to 'auto', and animating toward a guessed ceiling
-   makes the curve finish long before the box does — which is what stops an
-   ease looking like an ease. So measure the real height, animate to exactly
-   that, then release the constraint so the content can reflow freely. */
-function expand(box){
-  box.dataset.collapsed = 'false';
-  box.style.maxHeight = box.scrollHeight + 'px';
-  box.addEventListener('transitionend', function done(e){
-    if(e.propertyName !== 'max-height') return;
-    box.style.maxHeight = 'none';
-    box.removeEventListener('transitionend', done);
-  });
-}
-function collapse(box){
-  box.style.maxHeight = box.scrollHeight + 'px';
-  void box.offsetHeight;              /* force a reflow so the next value animates */
-  box.dataset.collapsed = 'true';
-  box.style.maxHeight = '0px';
-}
-function setOpen(box, open){ open ? expand(box) : collapse(box); }
-function initCollapsible(box){
-  box.style.maxHeight = box.dataset.collapsed === 'true' ? '0px' : 'none';
-}
-
-/* ---------- Work collapse toggle ---------- */
+/* ---------- Work collapse toggle ----------
+   The whole animation is CSS. This only flips the attribute. */
+const workBox = document.getElementById('workBox');
 const toggle = document.getElementById('collapse');
-initCollapsible($filters);
 toggle.addEventListener('click', () => {
-  const willOpen = $filters.dataset.collapsed === 'true';
-  setOpen($filters, willOpen);
+  const willOpen = workBox.dataset.collapsed === 'true';
+  workBox.dataset.collapsed = String(!willOpen);
   toggle.setAttribute('aria-expanded', String(willOpen));
   toggle.innerHTML = willOpen ? '&minus;' : '+';
   toggle.setAttribute('aria-label', willOpen ? 'Collapse work' : 'Expand work');
