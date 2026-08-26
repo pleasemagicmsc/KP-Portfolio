@@ -141,7 +141,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 }
 .pill--empty{opacity:.35;}
 .pill--icon{width:44px;height:44px;padding:0;justify-content:center;flex:0 0 auto;}
-.pill .count{font-size:.7em;opacity:var(--dim);}
 
 .masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--spacing-20);}
 .section-head{
@@ -344,11 +343,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
     <div class="section-head">
       <h2 class="display" id="info">Info</h2>
-      <a class="pill pill--icon" href="info.html"
-         aria-label="Open the info page" title="Open the info page">+</a>
+      <button class="pill pill--icon" id="infoToggle" aria-expanded="true"
+              aria-controls="infobox" aria-label="Collapse info"
+              title="Collapse">&minus;</button>
     </div>
 
-    <div class="stack" aria-labelledby="info">
+    <div class="stack" id="infobox" data-collapsed="false" aria-labelledby="info">
     <p class="body">
       I build brands and content pipelines that actually run, from social presence
       to video edits to figuring out the process behind it all. I've produced solo
@@ -514,7 +514,7 @@ function renderFilters(){
     b.className = 'pill' + (cat.id === activeFilter ? ' pill--active' : '') + (n ? '' : ' pill--empty');
     b.dataset.filter = cat.id;
     b.setAttribute('aria-pressed', String(cat.id === activeFilter));
-    b.innerHTML = cat.label + (n ? ' <span class="count">' + n + '</span>' : '');
+    b.textContent = cat.label;
     b.addEventListener('click', () => apply(cat.id));
     $filters.appendChild(b);
   });
@@ -711,6 +711,25 @@ document.addEventListener('keydown', e => {
   if(e.key === 'Escape') close();
   if(e.key === 'ArrowLeft') step(-1);
   if(e.key === 'ArrowRight') step(1);
+});
+
+/* ---------- Info section ----------
+   Maximized ('−'): the summary is shown. Clicking collapses it.
+   Collapsed  ('+'): the summary is hidden, and the button now opens the
+   full info page — the '+' state always means "there is more than this". */
+const infobox = document.getElementById('infobox');
+const infoToggle = document.getElementById('infoToggle');
+infoToggle.addEventListener('click', () => {
+  const collapsed = infobox.dataset.collapsed === 'true';
+  if(collapsed){
+    window.location.href = 'info.html';       // already minimized — go to the page
+    return;
+  }
+  infobox.dataset.collapsed = 'true';
+  infoToggle.innerHTML = '+';
+  infoToggle.setAttribute('aria-expanded', 'false');
+  infoToggle.setAttribute('aria-label', 'Open the info page');
+  infoToggle.setAttribute('title', 'Open the info page');
 });
 
 /* ---------- Collapse toggle ---------- */
