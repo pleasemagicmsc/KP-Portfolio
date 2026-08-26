@@ -175,14 +175,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .sect > .display{margin-bottom:var(--spacing-29);}
 
 .portrait{
-  width:100%;
-  /* Set from the file's real dimensions on load, so a portrait-orientation
-     photo is not cropped to a landscape box. 16/10 is only the fallback. */
-  aspect-ratio:var(--ar, 16/10);
-  max-height:78vh;
-  object-fit:contain;
-  object-position:center;
   display:block;
+  width:100%;
+  /* No fixed ratio and no object-fit. The element takes the photo's own
+     height, so the border sits flush against the image with no bands —
+     whatever proportions the file happens to have. */
+  height:auto;
   background:var(--color-deep);
   border:var(--stroke) solid rgba(229,217,182,.45);
 }
@@ -297,7 +295,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       </p>
 
       <nav class="pillrow" id="anchors" aria-label="Sections" style="margin-top:var(--spacing-29)">
-        <a class="pill" href="#about"    data-anchor="about">About</a>
+        <a class="pill" href="#about"    data-anchor="about">About Me</a>
         <a class="pill" href="#services" data-anchor="services">Services</a>
           <a class="pill" href="#features" data-anchor="features">Features</a>
       </nav>
@@ -329,7 +327,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
     <!-- ---------- ABOUT ---------- -->
     <section class="sect" id="about">
-      <h2 class="display">About</h2>
+      <h2 class="display">About Me</h2>
       <img class="portrait" id="portrait" src="Assets/portrait.webp"
            alt="Keril Priola" width="1600" height="1000">
       <p class="serif caption" id="portraitNote" hidden>
@@ -499,12 +497,13 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
         if(note) note.hidden = false;
       }
     });
-    portrait.addEventListener('load', () => {
-      const w = portrait.naturalWidth, h = portrait.naturalHeight;
-      if(w && h) portrait.style.setProperty('--ar', String(Math.min(2.4, Math.max(0.6, w/h))));
+    const settle = () => {
       /* Still on the placeholder means there is no real photograph yet */
       if(note) note.hidden = !portrait.currentSrc.includes('placeholder');
-    });
+    };
+    portrait.addEventListener('load', settle);
+    /* A cached image can finish before this runs, so the load event never fires */
+    if(portrait.complete && portrait.naturalWidth) settle();
   }
 
   /* Collapse toggle, matching the Work filter behaviour */
