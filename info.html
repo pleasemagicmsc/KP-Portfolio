@@ -721,6 +721,21 @@ function initCollapsible(box){
   const email = btn.dataset.email;
   let timer = null;
 
+  /* Smooths the fill in and out. The class still sets the state; this just
+     animates the change so it does not snap. */
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const EMBER = css('--color-ember') || '#E67E22';
+  const EDGE  = css('--color-sand')  || '#E5D9B6';
+  const CLEAR = 'rgba(0, 0, 0, 0)';
+  function fade(fromBg, fromEdge, toBg, toEdge){
+    if(!btn.animate) return;
+    btn.animate(
+      [{ backgroundColor: fromBg, borderColor: fromEdge },
+       { backgroundColor: toBg,   borderColor: toEdge }],
+      { duration: 250, easing: 'cubic-bezier(0.42, 0, 0.58, 1)' }
+    );
+  }
+
   async function copy(text){
     try{
       if(navigator.clipboard && window.isSecureContext){
@@ -745,6 +760,7 @@ function initCollapsible(box){
     clearTimeout(timer);
     if(ok){
       btn.classList.add('pill--active');
+      fade(CLEAR, EDGE, EMBER, EMBER);
       btn.textContent = 'COPIED';
       if(status) status.textContent = email + ' copied to clipboard';
     }else{
@@ -753,6 +769,7 @@ function initCollapsible(box){
     }
     timer = setTimeout(() => {
       btn.classList.remove('pill--active');
+      fade(EMBER, EMBER, CLEAR, EDGE);
       btn.textContent = 'Email';
       if(status) status.textContent = '';
     }, 2000);
