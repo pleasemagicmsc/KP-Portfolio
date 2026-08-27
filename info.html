@@ -43,8 +43,7 @@
      font, so the same ch value gives Satoshi and Lora different widths and
      their right edges would not line up. em keys off font-size alone, which
      both share. */
-  --measure:23.5em;              /* left column copy */
-  --measure-wide:32.5em;         /* document entries */
+  --measure:38em;                /* one line length for all copy, both columns */
 
   --radius-full:120px;
   --section-gap:15px;   /* rhythm between sections */
@@ -262,14 +261,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .doc .pill{border-color:var(--color-forest);color:var(--color-forest);}
 .doc .pill:hover{border-color:var(--color-ember);}
 .entry .pill{margin-bottom:var(--spacing-13);}
-.entry .body{max-width:var(--measure-wide);}
-.entry .serif{max-width:var(--measure-wide);margin-top:var(--spacing-12);display:block;}
+.entry .body{max-width:var(--measure);}
+.entry .serif{max-width:var(--measure);margin-top:var(--spacing-12);display:block;}
 
 /* Slash-separated run-on lists, as the reference sets them */
 .runon{
   font-size:var(--text-body);
   line-height:1.35;
-  max-width:var(--measure-wide);
+  max-width:var(--measure);
   word-break:break-word;
 }
 .runon .slash{opacity:.45;padding:0 2px;}
@@ -278,7 +277,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   border-radius:14px;
   padding:var(--spacing-20);
   margin-top:var(--section-gap);
-  max-width:var(--measure-wide);
+  max-width:var(--measure);
 }
 
 /* ---------- Page curtain ----------
