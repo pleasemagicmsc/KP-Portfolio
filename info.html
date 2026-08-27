@@ -534,7 +534,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* ---------- Collapse / expand ----------
    One second, ease-in-out, driven by element.animate(). */
-const MOTION = { duration: 1000, easing: 'cubic-bezier(0.42, 0, 0.58, 1)' };
+const MOTION = { duration: 500, easing: 'cubic-bezier(0.42, 0, 0.58, 1)' };
 
 function toggleCollapsible(box, open){
   const inner = box.firstElementChild;
@@ -634,30 +634,6 @@ function initCollapsible(box){
 })();
 
 
-/* ---------- Motion self-check (temporary — delete when resolved) ----------
-   Two different animation techniques failing identically points at something
-   switching motion off globally rather than at the technique. This says which. */
-(function(){
-  const box = document.querySelector('.collapsible');
-  if(!box) return console.warn('MOTION: no .collapsible found — wrong file is loaded');
-  const cs = getComputedStyle(box);
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const gridFr = CSS.supports('transition-property','grid-template-rows');
-  console.log('%c--- MOTION CHECK ---','font-weight:bold');
-  console.log('reduced motion requested by OS :', reduced);
-  console.log('transition-property            :', cs.transitionProperty);
-  console.log('transition-duration            :', cs.transitionDuration);
-  console.log('transition-timing-function     :', cs.transitionTimingFunction);
-  console.log('browser can transition grid    :', gridFr);
-  if(reduced)
-    console.warn('MOTION OFF: your OS asks for reduced motion. On Windows: Settings > Accessibility > Visual effects > Animation effects.');
-  else if(cs.transitionDuration === '0s')
-    console.warn('MOTION OFF: stylesheet did not update — hard refresh with Ctrl+Shift+R.');
-  else if(!gridFr)
-    console.warn('MOTION OFF: this browser cannot animate grid-template-rows. Needs Chrome/Edge 107+.');
-  else
-    console.log('%cMotion should be running at ' + cs.transitionDuration + '.','color:green');
-})();
 
 </script>
 
