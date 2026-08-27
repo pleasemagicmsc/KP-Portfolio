@@ -22,7 +22,6 @@
   --color-deep:#33412F;
 
   --grad-primary:linear-gradient(135deg, var(--color-forest) 0%, var(--color-moss) 100%);
-  --grad-rule:linear-gradient(90deg, var(--color-forest) 0%, var(--color-moss) 40%, rgba(229,217,182,.8) 100%);
 
   --font-lausanne:'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-victor-serif:'Source Serif 4', ui-serif, Georgia, "Times New Roman", serif;
@@ -38,7 +37,8 @@
   --radius-full:120px;
   --section-gap:15px;   /* rhythm between sections */
   --footer-h:58px;
-  --stroke:1px;
+  --stroke:1px;        /* hairlines: pill borders, tile edges */
+  --divider:4px;       /* structural dividers: rules, column split, footer */
   --dim:.68;
 
   /* Slow, then quick, then slow — cubic-bezier(0.42, 0, 0.58, 1) is the
@@ -87,7 +87,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .column::-webkit-scrollbar{display:none;}
 .control{
   padding:var(--spacing-29) var(--spacing-29) 80px;
-  border-right:var(--stroke) solid rgba(229,217,182,.45);
+  border-right:var(--divider) solid var(--color-sand);
 }
 /* The document column inverts: Sand ground, Forest ink. The same two colours
    swapped over. Scoped to .doc — :root and the left column are untouched. */
@@ -126,8 +126,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   opacity:var(--dim);
 }
 .rule{
-  border:0;height:var(--stroke);
-  background:var(--grad-rule);
+  border:0;
+  height:var(--divider);
+  background:var(--color-sand);
   margin:var(--section-gap) 0;
 }
 
@@ -246,7 +247,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   font-size:var(--text-body);line-height:1;
   white-space:nowrap;overflow-x:auto;scrollbar-width:none;
 }
-.infobar::before{content:"";position:absolute;top:0;left:0;right:0;height:var(--stroke);background:var(--grad-rule);}
+.infobar::before{content:"";position:absolute;top:0;left:0;right:0;height:var(--divider);background:var(--color-sand);}
 .infobar::-webkit-scrollbar{display:none;}
 .infobar .sep,.infobar .quiet{opacity:var(--dim);}
 .infobar a:hover{text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--color-ember);}
@@ -259,7 +260,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   body{overflow:auto;}
   .split{display:block;height:auto;}
   .column{overflow:visible;}
-  .control{border-right:0;border-bottom:var(--stroke) solid rgba(229,217,182,.45);padding:var(--spacing-20);}
+  .control{border-right:0;border-bottom:var(--divider) solid var(--color-sand);padding:var(--spacing-20);}
   .doc{--doc-pad:var(--spacing-20);padding:var(--doc-pad) var(--doc-pad) calc(var(--footer-h) + 40px);}
   .masthead{flex-direction:column;gap:var(--spacing-20);}
   .pill--icon{width:38px;height:38px;}
@@ -297,11 +298,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     <!-- Maximized, this section carries the summary and the section anchors -->
     <div class="section-head">
       <h2 class="display" id="infohead">Info</h2>
-      <button class="pill pill--icon" id="collapse" aria-expanded="true"
-              aria-controls="infobox" aria-label="Collapse info" title="Collapse">&minus;</button>
+      <button class="pill pill--icon" id="collapse" aria-expanded="false"
+              aria-controls="infobox" aria-label="Expand info" title="Expand">+</button>
     </div>
 
-    <div class="collapsible" id="infobox" data-collapsed="false" aria-labelledby="infohead">
+    <div class="collapsible" id="infobox" data-collapsed="true" aria-labelledby="infohead">
       <div class="collapsible-inner">
       <p class="body">
         I build brands and content pipelines that actually run, from social presence
@@ -570,19 +571,22 @@ function initCollapsible(box){
   const box = document.getElementById('infobox');
   const toggle = document.getElementById('collapse');
   initCollapsible(box);
-  toggle.addEventListener('click', () => {
-    const willOpen = box.dataset.collapsed === 'true';
-    toggleCollapsible(box, willOpen);
-    toggle.setAttribute('aria-expanded', String(willOpen));
-    toggle.innerHTML = willOpen ? '&minus;' : '+';
-    toggle.setAttribute('aria-label', willOpen ? 'Collapse info' : 'Expand info');
-    toggle.setAttribute('title', willOpen ? 'Collapse' : 'Expand');
-  });
+
+  function setInfo(open){
+    if(open === (box.dataset.collapsed === 'false')) return;    // already there
+    toggleCollapsible(box, open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.innerHTML = open ? '&minus;' : '+';
+    toggle.setAttribute('aria-label', open ? 'Collapse info' : 'Expand info');
+    toggle.setAttribute('title', open ? 'Collapse' : 'Expand');
+  }
+  toggle.addEventListener('click', () => setInfo(box.dataset.collapsed === 'true'));
+
+  /* Arrives closed, then opens itself */
+  setTimeout(() => setInfo(true), 250);
 
   /* A deep link should open the section it points at */
-  function reveal(){
-    if(box.dataset.collapsed === 'true') toggle.click();
-  }
+  function reveal(){ setInfo(true); }
 })();
 
 /* ---------- Email copy ----------
