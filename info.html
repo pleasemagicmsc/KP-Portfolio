@@ -103,7 +103,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .doc .serif,
 .doc h3,
 .doc .runon{color:var(--color-forest);}
-.doc .entry + .entry{border-top-color:rgba(64,81,59,.28);}
 .doc .placeholder{border-color:rgba(64,81,59,.45);}
 .doc ::selection{background:var(--color-forest);color:var(--color-sand);}
 .doc :focus-visible{outline-color:var(--color-forest);}
@@ -217,7 +216,18 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* Subsection: heading, body, italic echo */
 .entry{padding-top:var(--spacing-29);}
-.entry + .entry{margin-top:var(--spacing-29);border-top:var(--stroke) solid rgba(229,217,182,.28);}
+/* Entry dividers match the bars in the left column: same 3px, same edge to
+   edge, but Forest here because the document runs the palette inverted.
+   Negative side margins carry the bar past the column padding; matching
+   padding puts the text back where it was. */
+.entry + .entry{
+  margin-top:var(--spacing-29);
+  border-top:var(--divider) solid var(--color-forest);
+  margin-left:calc(var(--doc-pad) * -1);
+  margin-right:calc(var(--doc-pad) * -1);
+  padding-left:var(--doc-pad);
+  padding-right:var(--doc-pad);
+}
 .entry h3{
   font-size:var(--text-body);
   font-weight:400;
