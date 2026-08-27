@@ -5,9 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Info — Keril Priola</title>
 <meta name="description" content="Keril Priola is a multimedia and marketing generalist working across graphic design, video, motion, and content strategy.">
+<!-- Satoshi — Deni Anggara / Indian Type Foundry, ITF Free Font License.
+     Weight 400 only, matching the reference's single-weight rule. Add
+     300, 500, 700 or 900 to the string if you ever want more of the range. -->
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400&display=swap" rel="stylesheet">
+<!-- the italic accent stays on Source Serif 4 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Source+Serif+4:ital,wght@1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@1,400&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    TOKENS — identical to index.html
@@ -23,8 +30,8 @@
 
   --grad-primary:linear-gradient(135deg, var(--color-forest) 0%, var(--color-moss) 100%);
 
-  --font-lausanne:'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-victor-serif:'Source Serif 4', ui-serif, Georgia, "Times New Roman", serif;
+  --font-primary:'Satoshi', 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-accent:'Source Serif 4', ui-serif, Georgia, "Times New Roman", serif;
 
   --text-display:72px;
   --leading-display:1;
@@ -55,7 +62,7 @@ html,body{margin:0;padding:0;}
 body{
   background:var(--color-forest);
   color:var(--color-sand);
-  font-family:var(--font-lausanne);
+  font-family:var(--font-primary);
   font-weight:400;
   font-size:var(--text-body);
   line-height:var(--leading-body);
@@ -119,7 +126,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 }
 .body{font-size:var(--text-body);line-height:var(--leading-body);max-width:42ch;color:var(--color-sand);}
 .serif{
-  font-family:var(--font-victor-serif);
+  font-family:var(--font-accent);
   font-style:italic;
   font-size:var(--text-body);
   line-height:var(--leading-body);
