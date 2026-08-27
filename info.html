@@ -88,7 +88,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .column::-webkit-scrollbar{display:none;}
 .control{
   padding:var(--ctl-pad) var(--ctl-pad) 80px;
-  border-right:var(--divider) solid var(--color-forest);
+  border-right:var(--divider) solid var(--color-sand);
 }
 /* The document column inverts: Sand ground, Forest ink. The same two colours
    swapped over. Scoped to .doc — :root and the left column are untouched. */
@@ -205,6 +205,17 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
    same amount, so the photo meets the divider on the left and the window edge
    on the right. No fixed ratio and no object-fit — the element takes the
    file's own height, so there are no bands and no crop. */
+/* Document divider — the Forest counterpart of the bars in the left column.
+   Zero vertical margin, so anything set against it hugs it exactly. */
+.drule{
+  border:0;
+  height:var(--divider);
+  background:var(--color-forest);
+  width:calc(100% + (var(--doc-pad) * 2));
+  margin:0 calc(var(--doc-pad) * -1);
+}
+.drule--space-after{margin-bottom:var(--section-gap);}
+
 .portrait{
   display:block;
   width:calc(100% + (var(--doc-pad) * 2));
@@ -218,23 +229,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 /* Subsection: heading, body, italic echo */
 .entry{padding-top:var(--section-gap);}
-/* Entry dividers match the bars in the left column: same 3px, same edge to
-   edge, but Forest here because the document runs the palette inverted.
-   Negative side margins carry the bar past the column padding; matching
-   padding puts the text back where it was. */
-.entry + .entry{
-  margin-top:var(--section-gap);
-  border-top:var(--divider) solid var(--color-forest);
-  margin-left:calc(var(--doc-pad) * -1);
-  margin-right:calc(var(--doc-pad) * -1);
-  padding-left:var(--doc-pad);
-  padding-right:var(--doc-pad);
-}
-.entry h3{
-  font-size:var(--text-body);
-  font-weight:400;
-  margin-bottom:var(--spacing-13);
-}
+.entry + .entry{margin-top:var(--section-gap);}
+/* Subsection titles are pills, inverted to sit on the Sand ground */
+.doc .pill{border-color:var(--color-forest);color:var(--color-forest);}
+.doc .pill:hover{border-color:var(--color-ember);}
+.entry .pill{margin-bottom:var(--spacing-13);}
 .entry .body{max-width:58ch;}
 .entry .serif{max-width:58ch;margin-top:var(--spacing-12);display:block;}
 
@@ -299,7 +298,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   body{overflow:auto;}
   .split{display:block;height:auto;}
   .column{overflow:visible;}
-  .control{border-right:0;border-bottom:var(--divider) solid var(--color-forest);--ctl-pad:var(--spacing-20);padding:var(--ctl-pad);}
+  .control{border-right:0;border-bottom:var(--divider) solid var(--color-sand);--ctl-pad:var(--spacing-20);padding:var(--ctl-pad);}
   .doc{--doc-pad:var(--spacing-20);padding:var(--doc-pad) var(--doc-pad) calc(var(--footer-h) + 40px);}
   .masthead{flex-direction:column;gap:var(--spacing-20);}
   .pill--icon{width:38px;height:38px;}
@@ -358,7 +357,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
       <nav class="pillrow" id="anchors" aria-label="Sections" style="margin-top:var(--spacing-29)">
         <a class="pill" href="#about"    data-anchor="about">About Me</a>
-        <a class="pill" href="#services" data-anchor="services">Services</a>
+        <a class="pill" href="#services" data-anchor="services">Skillset</a>
           <a class="pill" href="#features" data-anchor="features">Features</a>
       </nav>
       </div>
@@ -391,20 +390,23 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     <!-- ---------- ABOUT ---------- -->
     <section class="sect" id="about">
       <h2 class="display">About Me</h2>
+      <hr class="drule">
       <img class="portrait" id="portrait" src="Assets/portrait.webp"
            alt="Keril Priola" width="1600" height="1000">
+      <hr class="drule">
       <p class="serif caption" id="portraitNote" hidden>
         No photograph found. Save yours as <b>Assets/portrait.webp</b> &mdash;
         or .jpg, .png, .svg &mdash; and it will appear here.
       </p>
     </section>
 
-    <!-- ---------- SERVICES ---------- -->
+    <!-- ---------- SKILLSET ---------- -->
     <section class="sect" id="services">
-      <h2 class="display">Services</h2>
+      <h2 class="display">Skillset</h2>
+      <hr class="drule drule--space-after">
 
       <div class="entry">
-        <h3>Graphics &amp; Branding</h3>
+        <span class="pill">Graphics &amp; Branding</span>
         <p class="body">
           Identity work, campaign key art, editorial layout, and the templates that keep
           a brand consistent once the launch is over. I design the system, not just the
@@ -414,7 +416,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       </div>
 
       <div class="entry">
-        <h3>Video &amp; Short Film</h3>
+        <span class="pill">Video &amp; Short Film</span>
         <p class="body">
           Shooting and editing for campaigns, showcases, and narrative pieces. Comfortable
           running a shoot solo when the budget is tight, and comfortable directing a small
@@ -424,7 +426,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       </div>
 
       <div class="entry">
-        <h3>Motion Graphics</h3>
+        <span class="pill">Motion Graphics</span>
         <p class="body">
           Titles, lower thirds, animated logos, and social cutdowns. Motion is where a
           static identity proves whether it was built properly, so this usually runs
@@ -434,7 +436,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       </div>
 
       <div class="entry">
-        <h3>Music &amp; Sound</h3>
+        <span class="pill">Music &amp; Sound</span>
         <p class="body">
           Track beds, sound design, and audio cleanup for video and podcast work.
           Sound is half of what makes an edit feel finished and it is usually the first
@@ -444,7 +446,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       </div>
 
       <div class="entry">
-        <h3>Podcast &amp; Presentations</h3>
+        <span class="pill">Podcast &amp; Presentations</span>
         <p class="body">
           Episode production end to end, and decks that hold up in a room rather than
           just on a screen. Both are really the same problem: making a long argument
@@ -454,7 +456,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
       </div>
 
       <div class="entry">
-        <h3>Content Strategy</h3>
+        <span class="pill">Content Strategy</span>
         <p class="body">
           Working out the calendar, the formats, and the process behind the output so a
           channel can keep running without me. This is the part most people skip, and
@@ -462,26 +464,29 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
         </p>
         <p class="serif">The process behind it all.</p>
       </div>
+
+      <hr class="drule" style="margin-top:var(--section-gap)">
     </section>
 
     <!-- ---------- FEATURES ---------- -->
     <section class="sect" id="features">
       <h2 class="display">Features</h2>
+      <hr class="drule drule--space-after">
 
       <div class="entry">
-        <h3>Selected Awards &amp; Recognition</h3>
+        <span class="pill">Selected Awards &amp; Recognition</span>
         <div class="placeholder">
           <p class="serif" style="opacity:1">
             You mentioned leading a team to a national competition placement &mdash; that
             belongs here, but I do not know the competition name, the year, or the
             placement, so I have not written it for you. Format it like:
-            Competition Name, Placement, Year<span class="slash">/</span>Next One, Placement, Year
+            Competition Name, Placement, Year
           </p>
         </div>
       </div>
 
       <div class="entry">
-        <h3>Selected Features &amp; Publications</h3>
+        <span class="pill">Selected Features &amp; Publications</span>
         <div class="placeholder">
           <p class="serif" style="opacity:1">
             Any feature, interview, repost, or publication. If there are none yet, delete
