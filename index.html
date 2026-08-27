@@ -541,7 +541,7 @@ async function load(){
     WORKS = (data.works || []).slice().sort((a,b)=>(a.order??999)-(b.order??999));
     WORKS.forEach(w => { w._slides = slidesOf(w); });
     renderFilters();
-    apply('all');
+    apply('all', true);
   }catch(err){
     $index.innerHTML =
       '<div class="index-empty">' +
@@ -583,17 +583,40 @@ function buildReel(){
   });
 }
 
-function apply(id){
+let filterAnim = null;
+
+/* Switching category crossfades the index: out, swap the tiles while nothing
+   is visible, back in. Half the shared duration each way, so the whole
+   exchange takes the same time as every other motion on the site. */
+function apply(id, instant){
+  if(id === activeFilter && !instant) return;      // already showing it
   activeFilter = id;
+
   $filters.querySelectorAll('[data-filter]').forEach(p => {
     const on = p.dataset.filter === id;
     p.classList.toggle('pill--active', on);
     p.setAttribute('aria-pressed', String(on));
   });
-  visible = id === 'all' ? WORKS : WORKS.filter(w => (w.categories||[]).includes(id));
-  buildReel();
-  renderIndex();
-  $index.scrollTop = 0;
+
+  const swap = () => {
+    visible = id === 'all' ? WORKS : WORKS.filter(w => (w.categories||[]).includes(id));
+    buildReel();
+    renderIndex();
+    $index.scrollTop = 0;
+  };
+
+  if(instant || !$index.animate){ swap(); return; }
+
+  const half = { duration: MOTION.duration / 2, easing: MOTION.easing };
+  if(filterAnim) filterAnim.cancel();
+
+  filterAnim = $index.animate([{opacity:1},{opacity:0}], half);
+  filterAnim.onfinish = () => {
+    $index.style.opacity = '0';                    // hold it hidden across the swap
+    swap();
+    filterAnim = $index.animate([{opacity:0},{opacity:1}], half);
+    filterAnim.onfinish = () => { $index.style.opacity = ''; filterAnim = null; };
+  };
 }
 
 /* ---------- Index ---------- */
