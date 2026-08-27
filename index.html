@@ -903,9 +903,13 @@ document.querySelectorAll('a[href$=".html"]').forEach(link => {
   });
 });
 
-/* Arrives closed, then opens itself. Waits for load() so the pills are in
-   place — measuring an empty box would animate to the wrong height. */
-load().then(() => setTimeout(() => setWork(true), 250));
+/* Wait for the manifest, then lift the curtain on finished content and open
+   the Work section. Measuring an empty box would animate to the wrong height,
+   so the section open waits too. */
+load().then(() => {
+  reveal();
+  setTimeout(() => setWork(true), 250);
+});
 
 /* ---------- Email copy ----------
    Click: highlight with the same active pill the work filters use,
@@ -974,8 +978,10 @@ function fadeCurtain(to){
   return a.finished.catch(() => {});
 }
 
-/* reveal on arrival, and again if the page comes back from history */
-fadeCurtain(0);
+/* Reveal on arrival — but only once the tiles exist. The manifest is fetched,
+   so lifting the curtain straight away uncovers an empty column and the work
+   then pops in behind it. reveal() is called from load(), below. */
+function reveal(){ fadeCurtain(0); }
 window.addEventListener('pageshow', e => { if(e.persisted) fadeCurtain(0); });
 /* if anything goes wrong, never leave the content hidden */
 setTimeout(() => { if(curtain && curtain.style.opacity !== '0') curtain.style.opacity = '0'; }, 2000);
