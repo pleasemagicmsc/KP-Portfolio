@@ -157,9 +157,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .pill--muted{border-color:rgba(229,217,182,.45);opacity:var(--dim);}
 .pill--muted:hover{opacity:1;}
 .pill--icon{width:44px;height:44px;padding:0;justify-content:center;flex:0 0 auto;}
-/* A toggle mid-animation or in cooldown refuses input, so a running
-   animation can never be cut short. */
-.pill--locked{pointer-events:none;opacity:.55;}
+/* The toggle ignores presses while an animation is running, so it can never
+   be cut short. No dimming and no cooldown — the button looks and behaves
+   normally, extra presses simply do nothing until the motion finishes. */
 
 .masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--spacing-20);}
 .section-head{
@@ -577,7 +577,6 @@ function initCollapsible(box){
   const toggle = document.getElementById('collapse');
   initCollapsible(box);
 
-  const COOLDOWN = 500;
   let infoLocked = false;
 
   function paintToggle(open){
@@ -591,16 +590,10 @@ function initCollapsible(box){
     if(infoLocked) return;
     if(open === (box.dataset.collapsed === 'false')) return;    // already there
     infoLocked = true;
-    toggle.classList.add('pill--locked');
-    toggle.setAttribute('aria-disabled', 'true');
     toggleCollapsible(box, open);
     paintToggle(open);
-    /* locked for the animation, then a cooldown on top */
-    setTimeout(() => {
-      infoLocked = false;
-      toggle.classList.remove('pill--locked');
-      toggle.removeAttribute('aria-disabled');
-    }, MOTION.duration + COOLDOWN);
+    /* released the moment the animation finishes */
+    setTimeout(() => { infoLocked = false; }, MOTION.duration);
   }
   toggle.addEventListener('click', () => setInfo(box.dataset.collapsed === 'true'));
 
