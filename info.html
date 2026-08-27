@@ -560,27 +560,6 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   }
 
 
-  /* ---------- Page curtain ---------- */
-  const curtain = document.getElementById('curtain');
-  
-  function fadeCurtain(to){
-    if(!curtain) return Promise.resolve();
-    if(!curtain.animate){                     // very old browser — no fade
-      curtain.style.opacity = String(to);
-      return Promise.resolve();
-    }
-    const from = to === 0 ? 1 : 0;
-    curtain.style.opacity = String(from);
-    const a = curtain.animate([{opacity:from},{opacity:to}], MOTION);
-    a.onfinish = () => { curtain.style.opacity = String(to); };
-    return a.finished.catch(() => {});
-  }
-  
-  /* reveal on arrival, and again if the page comes back from history */
-  fadeCurtain(0);
-  window.addEventListener('pageshow', e => { if(e.persisted) fadeCurtain(0); });
-  /* if anything goes wrong, never leave the content hidden */
-  setTimeout(() => { if(curtain && curtain.style.opacity !== '0') curtain.style.opacity = '0'; }, 2000);
   
   /* Collapse toggle, matching the Work filter behaviour */
 
@@ -664,6 +643,28 @@ function initCollapsible(box){
 
   /* A deep link should open the section it points at */
   function reveal(){ setInfo(true); }
+  /* ---------- Page curtain ---------- */
+  const curtain = document.getElementById('curtain');
+  
+  function fadeCurtain(to){
+    if(!curtain) return Promise.resolve();
+    if(!curtain.animate){                     // very old browser — no fade
+      curtain.style.opacity = String(to);
+      return Promise.resolve();
+    }
+    const from = to === 0 ? 1 : 0;
+    curtain.style.opacity = String(from);
+    const a = curtain.animate([{opacity:from},{opacity:to}], MOTION);
+    a.onfinish = () => { curtain.style.opacity = String(to); };
+    return a.finished.catch(() => {});
+  }
+  
+  /* reveal on arrival, and again if the page comes back from history */
+  fadeCurtain(0);
+  window.addEventListener('pageshow', e => { if(e.persisted) fadeCurtain(0); });
+  /* if anything goes wrong, never leave the content hidden */
+  setTimeout(() => { if(curtain && curtain.style.opacity !== '0') curtain.style.opacity = '0'; }, 2000);
+
 })();
 
 /* ---------- Email copy ----------
@@ -712,6 +713,7 @@ function initCollapsible(box){
       if(status) status.textContent = '';
     }, 2000);
   });
+
 })();
 
 
