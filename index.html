@@ -322,7 +322,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   background:#000;
   border:var(--stroke) solid rgba(229,217,182,.45);
 }
-.lightbox-stage > *{position:absolute;inset:0;width:100%;height:100%;border:0;}
+/* Each slide is a layer of its own. During a change the outgoing and the
+   incoming both sit here at once, one fading down as the other comes up —
+   which is what makes it a crossfade rather than a dissolve through black. */
+.stage-slide{position:absolute;inset:0;}
+.lightbox-stage > *,
+.stage-slide > *{position:absolute;inset:0;width:100%;height:100%;border:0;}
 
 /* A blurred copy of the same image fills whatever the sharp one cannot —
    the frame is capped in height, so a tall or square piece leaves bars at
@@ -750,7 +755,6 @@ const $stage = document.getElementById('stage');
 let current = -1;
 
 let lbAnim = null;
-let stageAnim = null;
 let lbClosing = false;
 
 function open(i){
@@ -770,27 +774,7 @@ function open(i){
   ].filter(Boolean).join('  ·  ');
   renderDots(w, si, i);
 
-  const paintMedia = () => {
-    $stage.style.setProperty('--ar', String(sl.aspect));
-    $stage.innerHTML = embed(sl, w);
-  };
-
-  if(wasShut || !$stage.animate){
-    paintMedia();
-  }else{
-    /* Already open — crossfade from one slide to the next. */
-    if(stageAnim) stageAnim.cancel();
-    const half = { duration: MOTION.duration / 2, easing: MOTION.easing };
-    stageAnim = $stage.animate([{opacity:1},{opacity:0}], half);
-    stageAnim.oncancel = () => { $stage.style.opacity = ''; };
-    stageAnim.onfinish = () => {
-      $stage.style.opacity = '0';
-      paintMedia();
-      stageAnim = $stage.animate([{opacity:0},{opacity:1}], half);
-      stageAnim.oncancel = () => { $stage.style.opacity = ''; };
-      stageAnim.onfinish = () => { $stage.style.opacity = ''; stageAnim = null; };
-    };
-  }
+  paintMedia(sl, w, !wasShut);
 
   $lb.dataset.open = 'true';
 
@@ -823,6 +807,33 @@ function renderDots(w, si, reelIndex){
 
 /* The still to blur behind a slide: its poster, YouTube's thumbnail, or the
    image itself. Returns nothing when there is no still to use. */
+/* Put the next slide on top at zero opacity, bring it up, and take whatever
+   was already there down at the same time. Removing the old layer is what
+   stops any video or embed inside it. */
+function paintMedia(sl, w, crossfade){
+  const slide = document.createElement('div');
+  slide.className = 'stage-slide';
+  slide.innerHTML = embed(sl, w);
+
+  const outgoing = Array.from($stage.children);
+  $stage.style.setProperty('--ar', String(sl.aspect));
+  $stage.appendChild(slide);
+
+  if(!crossfade || !slide.animate){
+    outgoing.forEach(n => n.remove());
+    return;
+  }
+
+  const opts = { duration: MOTION.duration, easing: MOTION.easing };
+  slide.animate([{opacity:0},{opacity:1}], opts);
+  outgoing.forEach(n => {
+    const a = n.animate([{opacity:1},{opacity:0}], opts);
+    const drop = () => n.remove();
+    a.onfinish = drop;
+    a.oncancel = drop;
+  });
+}
+
 function backdrop(sl){
   let src = sl.poster;
   if(!src && sl.type === 'youtube') src = ytThumb(sl.src, 0);
@@ -854,7 +865,6 @@ function close(){
   if(lbClosing) return;            // already on its way out
   lbClosing = true;
   if(lbAnim) lbAnim.cancel();
-  if(stageAnim){ stageAnim.cancel(); stageAnim = null; }
 
   const done = () => {
     $lb.dataset.open = 'false';
