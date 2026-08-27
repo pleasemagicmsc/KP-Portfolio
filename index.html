@@ -300,6 +300,26 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 }
 .thumb:hover .thumb-pages{background:var(--color-ember);border-color:var(--color-ember);}
 
+/* ---------- Page curtain ----------
+   A pane of Forest over the right column only. Opaque on arrival, fades out
+   to reveal the content, and fades back in before the page changes. Stops
+   above the footer bar so the info strip is never half-covered. */
+.curtain{
+  position:fixed;
+  top:0;
+  bottom:var(--footer-h);
+  left:40%;                      /* the column split */
+  right:0;
+  z-index:40;                    /* over the content, under the lightbox */
+  background:var(--color-forest);
+  opacity:1;
+  pointer-events:none;           /* never intercepts a click, even if stuck */
+}
+@media (max-width:1000px){
+  /* stacked layout — there is no right column to isolate */
+  .curtain{left:0;}
+}
+
 /* ============================================================
    FOOTER
    ============================================================ */
@@ -411,6 +431,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     </div>
   </div>
 </div>
+
+<div class="curtain" id="curtain" aria-hidden="true"></div>
 
 <footer class="infobar">
   <span>Manila 31&deg;</span><span class="sep">|</span>
@@ -784,11 +806,15 @@ document.querySelectorAll('a[href$=".html"]').forEach(link => {
   link.addEventListener('click', e => {
     if(e.metaKey || e.ctrlKey || e.shiftKey || link.target === '_blank') return;
     const url = link.getAttribute('href');
-    if(workBox.dataset.collapsed === 'true') return;   // nothing open, go now
+    if(workBox.dataset.collapsed === 'true'){          // nothing to close
+      e.preventDefault();
+      fadeCurtain(1).then(() => { window.location.href = url; });
+      return;
+    }
     e.preventDefault();
     toggleCollapsible(workBox, false);                 // bypasses the lock on purpose
     paintToggle(false);
-    setTimeout(() => { window.location.href = url; }, MOTION.duration);
+    fadeCurtain(1).then(() => { window.location.href = url; });
   });
 });
 
@@ -845,6 +871,29 @@ load().then(() => setTimeout(() => setWork(true), 250));
 })();
 
 
+
+
+/* ---------- Page curtain ---------- */
+const curtain = document.getElementById('curtain');
+
+function fadeCurtain(to){
+  if(!curtain) return Promise.resolve();
+  if(!curtain.animate){                     // very old browser — no fade
+    curtain.style.opacity = String(to);
+    return Promise.resolve();
+  }
+  const from = to === 0 ? 1 : 0;
+  curtain.style.opacity = String(from);
+  const a = curtain.animate([{opacity:from},{opacity:to}], MOTION);
+  a.onfinish = () => { curtain.style.opacity = String(to); };
+  return a.finished.catch(() => {});
+}
+
+/* reveal on arrival, and again if the page comes back from history */
+fadeCurtain(0);
+window.addEventListener('pageshow', e => { if(e.persisted) fadeCurtain(0); });
+/* if anything goes wrong, never leave the content hidden */
+setTimeout(() => { if(curtain && curtain.style.opacity !== '0') curtain.style.opacity = '0'; }, 2000);
 
 </script>
 
