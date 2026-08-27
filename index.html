@@ -175,24 +175,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .contact-group a:hover{text-decoration:underline;text-underline-offset:5px;text-decoration-color:var(--color-ember);}
 
 /* ---------- Collapsible ----------
-   grid-template-rows animates between 0fr and 1fr, which resolves to the
-   content's real height without anyone measuring it. No JS, no scrollHeight,
-   no transitionend. The child must carry overflow:hidden and min-height:0
-   or it refuses to shrink below its content. */
-.collapsible{
-  display:grid;
-  grid-template-rows:1fr;
-  margin-top:var(--spacing-29);
-  transition:grid-template-rows var(--dur) var(--ease),
-             opacity var(--dur) var(--ease),
-             margin-top var(--dur) var(--ease);
-}
-.collapsible > *{overflow:hidden;min-height:0;}
-.collapsible[data-collapsed="true"]{
-  grid-template-rows:0fr;
-  opacity:0;
-  margin-top:0;
-}
+   Height is animated from script with the Web Animations API, not with a CSS
+   transition. A CSS transition can be switched off entirely by the OS reduced
+   motion setting; this cannot, so the section always animates. */
+.collapsible{overflow:hidden;}
+.collapsible-inner{padding-top:var(--spacing-29);}
+.collapsible[data-collapsed="true"]{height:0;}
 
 .filters{display:flex;flex-wrap:wrap;gap:var(--spacing-7) var(--spacing-7);}
 .filters .pill{cursor:pointer;}
@@ -360,7 +348,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     </div>
 
     <div class="collapsible" id="workBox" data-collapsed="false">
-      <div><div class="filters" id="filters" role="group" aria-labelledby="work"></div></div>
+      <div class="collapsible-inner"><div class="filters" id="filters" role="group" aria-labelledby="work"></div></div>
     </div>
 
     <hr class="rule">
@@ -723,13 +711,49 @@ document.addEventListener('keydown', e => {
 });
 
 
-/* ---------- Work collapse toggle ----------
-   The whole animation is CSS. This only flips the attribute. */
+
+/* ---------- Collapse / expand ----------
+   One second, ease-in-out, driven by element.animate(). */
+const MOTION = { duration: 1000, easing: 'cubic-bezier(0.42, 0, 0.58, 1)' };
+
+function toggleCollapsible(box, open){
+  const inner = box.firstElementChild;
+  if(box._anim) box._anim.cancel();
+
+  const from = box.getBoundingClientRect().height;
+  box.style.height = from + 'px';
+  box.dataset.collapsed = String(!open);
+
+  /* measure the natural height with the box temporarily unconstrained */
+  box.style.height = 'auto';
+  const full = box.getBoundingClientRect().height;
+  box.style.height = from + 'px';
+
+  const to = open ? full : 0;
+
+  box._anim = box.animate(
+    [{ height: from + 'px', opacity: open ? 0 : 1 },
+     { height: to   + 'px', opacity: open ? 1 : 0 }],
+    MOTION
+  );
+  box._anim.onfinish = () => {
+    box.style.height = open ? 'auto' : '0px';
+    box.style.opacity = '';
+    box._anim = null;
+  };
+}
+
+function initCollapsible(box){
+  box.style.height = box.dataset.collapsed === 'true' ? '0px' : 'auto';
+}
+
+/* ---------- Work collapse toggle ---------- */
 const workBox = document.getElementById('workBox');
 const toggle = document.getElementById('collapse');
+initCollapsible(workBox);
 toggle.addEventListener('click', () => {
   const willOpen = workBox.dataset.collapsed === 'true';
-  workBox.dataset.collapsed = String(!willOpen);
+  toggleCollapsible(workBox, willOpen);
   toggle.setAttribute('aria-expanded', String(willOpen));
   toggle.innerHTML = willOpen ? '&minus;' : '+';
   toggle.setAttribute('aria-label', willOpen ? 'Collapse work' : 'Expand work');
