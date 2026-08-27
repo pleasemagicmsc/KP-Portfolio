@@ -38,6 +38,7 @@
   --spacing-7:7px;  --spacing-8:8px;  --spacing-10:10px;
   --spacing-12:12px;--spacing-13:13px;--spacing-20:20px;--spacing-29:29px;
   --ctl-pad:var(--spacing-29);   /* left column padding — rules cancel it */
+  --split:50%;                   /* column split — the curtain follows it */
 
   --radius-full:120px;
   --section-gap:15px;   /* rhythm between sections */
@@ -85,7 +86,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .split{
   position:relative;z-index:1;
   display:grid;
-  grid-template-columns:40% 60%;
+  grid-template-columns:var(--split) calc(100% - var(--split));
   height:calc(100vh - var(--footer-h));
   height:calc(100dvh - var(--footer-h));
 }
@@ -268,7 +269,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   position:fixed;
   top:0;
   bottom:var(--footer-h);
-  left:40%;                      /* the column split */
+  left:var(--split);             /* follows the column split */
   right:0;
   z-index:40;                    /* over the content, under the lightbox */
   background:var(--color-forest);
