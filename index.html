@@ -213,7 +213,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   border-radius:0;
   overflow:hidden;
   border:0;
-  border-bottom:var(--stroke) solid rgba(229,217,182,.45);
+  /* A bar above every tile, and one after the last, so each piece is closed
+     top and bottom. Adjacent tiles share a bar rather than stacking two.
+     Same weight and colour as the rules in the left column, and flush
+     against the image — no margin to open a gap. */
+  border-top:var(--divider) solid var(--color-sand);
   cursor:pointer;
   text-align:left;
 }
@@ -275,7 +279,13 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .thumb-play svg{width:18px;height:18px;fill:var(--color-sand);margin-left:3px;}
 .thumb:hover .thumb-play{background:var(--color-ember);border-color:var(--color-ember);}
 
-.index-end{padding:var(--spacing-29);font-size:var(--text-body);color:var(--color-sand);opacity:var(--dim);}
+.index-end{
+  padding:var(--spacing-29);
+  font-size:var(--text-body);
+  color:var(--color-sand);
+  opacity:var(--dim);
+  border-top:var(--divider) solid var(--color-sand);   /* closes the last tile */
+}
 .index-empty{padding:var(--spacing-29);max-width:40ch;}
 .index-empty .serif{margin-top:var(--spacing-12);display:block;}
 
