@@ -750,6 +750,7 @@ const $stage = document.getElementById('stage');
 let current = -1;
 
 let lbAnim = null;
+let stageAnim = null;
 let lbClosing = false;
 
 function open(i){
@@ -759,17 +760,38 @@ function open(i){
   if(wasShut) lastFocus = document.activeElement;
   const { w, sl, si, of } = reel[i];
 
-  $stage.style.setProperty('--ar', String(sl.aspect));
-  $stage.innerHTML = embed(sl, w);
-
+  /* Caption and dots update straight away — waiting for the fade would make
+     Previous/Next feel unresponsive. Only the media crossfades. */
   document.getElementById('lbTitle').textContent = (w.kind ? w.kind + ' — ' : '') + w.title;
   document.getElementById('lbSub').textContent = [
     of > 1 ? 'Page ' + (si + 1) + ' of ' + of : '',
     w.year,
     (w.categories||[]).map(labelOf).join(', ')
   ].filter(Boolean).join('  ·  ');
-
   renderDots(w, si, i);
+
+  const paintMedia = () => {
+    $stage.style.setProperty('--ar', String(sl.aspect));
+    $stage.innerHTML = embed(sl, w);
+  };
+
+  if(wasShut || !$stage.animate){
+    paintMedia();
+  }else{
+    /* Already open — crossfade from one slide to the next. */
+    if(stageAnim) stageAnim.cancel();
+    const half = { duration: MOTION.duration / 2, easing: MOTION.easing };
+    stageAnim = $stage.animate([{opacity:1},{opacity:0}], half);
+    stageAnim.oncancel = () => { $stage.style.opacity = ''; };
+    stageAnim.onfinish = () => {
+      $stage.style.opacity = '0';
+      paintMedia();
+      stageAnim = $stage.animate([{opacity:0},{opacity:1}], half);
+      stageAnim.oncancel = () => { $stage.style.opacity = ''; };
+      stageAnim.onfinish = () => { $stage.style.opacity = ''; stageAnim = null; };
+    };
+  }
+
   $lb.dataset.open = 'true';
 
   /* Fade in only when the viewer is appearing — not when paging between
@@ -832,11 +854,13 @@ function close(){
   if(lbClosing) return;            // already on its way out
   lbClosing = true;
   if(lbAnim) lbAnim.cancel();
+  if(stageAnim){ stageAnim.cancel(); stageAnim = null; }
 
   const done = () => {
     $lb.dataset.open = 'false';
     $lb.style.opacity = '';
     $stage.innerHTML = '';         // stops playback
+    $stage.style.opacity = '';
     lbAnim = null;
     lbClosing = false;
     if(lastFocus) lastFocus.focus();
