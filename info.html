@@ -88,7 +88,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .column::-webkit-scrollbar{display:none;}
 .control{
   padding:var(--ctl-pad) var(--ctl-pad) 80px;
-  border-right:var(--divider) solid var(--color-sand);
+  border-right:var(--divider) solid var(--color-forest);
 }
 /* The document column inverts: Sand ground, Forest ink. The same two colours
    swapped over. Scoped to .doc — :root and the left column are untouched. */
@@ -196,8 +196,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
    DOCUMENT — the right column
    ============================================================ */
 .sect{scroll-margin-top:var(--spacing-29);}
-.sect + .sect{margin-top:96px;}
-.sect > .display{margin-bottom:var(--spacing-29);}
+/* Same rhythm as the left column: sections sit two gaps apart, matching the
+   heading-to-heading distance the rules create over there. */
+.sect + .sect{margin-top:calc(var(--section-gap) * 2);}
+.sect > .display{margin-bottom:var(--section-gap);}
 
 /* Full bleed. Widen by the column padding on each side and pull back by the
    same amount, so the photo meets the divider on the left and the window edge
@@ -215,13 +217,13 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .caption{margin-top:var(--spacing-12);}
 
 /* Subsection: heading, body, italic echo */
-.entry{padding-top:var(--spacing-29);}
+.entry{padding-top:var(--section-gap);}
 /* Entry dividers match the bars in the left column: same 3px, same edge to
    edge, but Forest here because the document runs the palette inverted.
    Negative side margins carry the bar past the column padding; matching
    padding puts the text back where it was. */
 .entry + .entry{
-  margin-top:var(--spacing-29);
+  margin-top:var(--section-gap);
   border-top:var(--divider) solid var(--color-forest);
   margin-left:calc(var(--doc-pad) * -1);
   margin-right:calc(var(--doc-pad) * -1);
@@ -248,7 +250,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   border:var(--stroke) dashed rgba(229,217,182,.45);
   border-radius:14px;
   padding:var(--spacing-20);
-  margin-top:var(--spacing-20);
+  margin-top:var(--section-gap);
   max-width:58ch;
 }
 
@@ -297,11 +299,11 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   body{overflow:auto;}
   .split{display:block;height:auto;}
   .column{overflow:visible;}
-  .control{border-right:0;border-bottom:var(--divider) solid var(--color-sand);--ctl-pad:var(--spacing-20);padding:var(--ctl-pad);}
+  .control{border-right:0;border-bottom:var(--divider) solid var(--color-forest);--ctl-pad:var(--spacing-20);padding:var(--ctl-pad);}
   .doc{--doc-pad:var(--spacing-20);padding:var(--doc-pad) var(--doc-pad) calc(var(--footer-h) + 40px);}
   .masthead{flex-direction:column;gap:var(--spacing-20);}
   .pill--icon{width:38px;height:38px;}
-  .sect + .sect{margin-top:64px;}
+  .sect + .sect{margin-top:calc(var(--section-gap) * 2);}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none !important;animation:none !important;}
