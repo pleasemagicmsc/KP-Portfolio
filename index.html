@@ -687,10 +687,14 @@ const $lb = document.getElementById('lightbox');
 const $stage = document.getElementById('stage');
 let current = -1;
 
+let lbAnim = null;
+let lbClosing = false;
+
 function open(i){
   if(i < 0 || !reel.length) return;
   current = i;
-  if($lb.dataset.open !== 'true') lastFocus = document.activeElement;
+  const wasShut = $lb.dataset.open !== 'true';
+  if(wasShut) lastFocus = document.activeElement;
   const { w, sl, si, of } = reel[i];
 
   $stage.style.setProperty('--ar', String(sl.aspect));
@@ -705,6 +709,16 @@ function open(i){
 
   renderDots(w, si, i);
   $lb.dataset.open = 'true';
+
+  /* Fade in only when the viewer is appearing — not when paging between
+     slides, where the frame is already on screen. */
+  if(wasShut){
+    lbClosing = false;
+    if(lbAnim) lbAnim.cancel();
+    $lb.style.opacity = '0';
+    lbAnim = $lb.animate([{opacity:0},{opacity:1}], MOTION);
+    lbAnim.onfinish = () => { $lb.style.opacity = ''; lbAnim = null; };
+  }
   document.getElementById('lbClose').focus();
 }
 
@@ -742,12 +756,26 @@ function labelOf(id){
 }
 
 function close(){
-  $lb.dataset.open = 'false';
-  $stage.innerHTML = '';           // stops playback
-  if(lastFocus) lastFocus.focus();
+  if(lbClosing) return;            // already on its way out
+  lbClosing = true;
+  if(lbAnim) lbAnim.cancel();
+
+  const done = () => {
+    $lb.dataset.open = 'false';
+    $lb.style.opacity = '';
+    $stage.innerHTML = '';         // stops playback
+    lbAnim = null;
+    lbClosing = false;
+    if(lastFocus) lastFocus.focus();
+  };
+
+  if(!$lb.animate) return done();  // no animation support — just shut
+  lbAnim = $lb.animate([{opacity:1},{opacity:0}], MOTION);
+  lbAnim.onfinish = done;
+  lbAnim.oncancel = done;
 }
 function step(d){
-  if(!reel.length) return;
+  if(!reel.length || lbClosing) return;
   open((current + d + reel.length) % reel.length);
 }
 
@@ -767,7 +795,7 @@ document.getElementById('lbPrev').addEventListener('click', () => step(-1));
 document.getElementById('lbNext').addEventListener('click', () => step(1));
 $lb.addEventListener('click', e => { if(e.target === $lb) close(); });
 document.addEventListener('keydown', e => {
-  if($lb.dataset.open !== 'true') return;
+  if($lb.dataset.open !== 'true' || lbClosing) return;
   if(e.key === 'Escape') close();
   if(e.key === 'ArrowLeft') step(-1);
   if(e.key === 'ArrowRight') step(1);
