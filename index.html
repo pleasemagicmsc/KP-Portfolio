@@ -107,6 +107,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
    TYPE
    ============================================================ */
 .display{
+  font-family:var(--font-primary);
   font-size:clamp(40px, 5.2vw, var(--text-display));
   line-height:var(--leading-display);
   font-weight:400;
@@ -141,6 +142,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   align-items:center;
   gap:var(--spacing-8);
   border-radius:var(--radius-full);
+  font-family:var(--font-primary);
   border:var(--pill-stroke) solid var(--color-sand);
   background:transparent;
   color:var(--color-sand);
@@ -817,7 +819,7 @@ let workLocked = false;
 
 function paintToggle(open){
   toggle.setAttribute('aria-expanded', String(open));
-  toggle.innerHTML = open ? '&minus;' : '+';
+  toggle.innerHTML = open ? '&#8722;' : '+';
   toggle.setAttribute('aria-label', open ? 'Collapse work' : 'Expand work');
   toggle.setAttribute('title', open ? 'Collapse' : 'Expand');
 }
