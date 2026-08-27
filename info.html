@@ -123,7 +123,17 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   font-weight:400;
   color:var(--color-sand);
 }
-.body{font-size:var(--text-body);line-height:var(--leading-body);max-width:42ch;color:var(--color-sand);}
+.body{
+  font-size:var(--text-body);
+  line-height:var(--leading-body);
+  max-width:42ch;
+  color:var(--color-sand);
+  /* Flush on both edges. Hyphenation stops the word spacing opening into
+     rivers, which is what justified text does in a narrow measure. */
+  text-align:justify;
+  hyphens:auto;
+  -webkit-hyphens:auto;
+}
 .serif{
   font-family:var(--font-accent);
   font-style:normal;
@@ -131,6 +141,9 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   line-height:var(--leading-body);
   color:var(--color-sand);
   opacity:var(--dim);
+  text-align:justify;
+  hyphens:auto;
+  -webkit-hyphens:auto;
 }
 .rule{
   border:0;
