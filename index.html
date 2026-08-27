@@ -775,6 +775,7 @@ function open(i){
   renderDots(w, si, i);
 
   paintMedia(sl, w, !wasShut);
+  prefetch(i);
 
   $lb.dataset.open = 'true';
 
@@ -807,10 +808,45 @@ function renderDots(w, si, reelIndex){
 
 /* The still to blur behind a slide: its poster, YouTube's thumbnail, or the
    image itself. Returns nothing when there is no still to use. */
+/* The still a slide needs before it can be shown */
+function stillFor(sl){
+  if(sl.type === 'image')   return sl.src || sl.poster;
+  if(sl.poster)             return sl.poster;
+  if(sl.type === 'youtube') return ytThumb(sl.src, 0);
+  return null;
+}
+
+/* Warm the browser cache so the next slide is ready before it is asked for */
+function prefetch(i){
+  if(!reel.length) return;
+  [1, -1].forEach(d => {
+    const r = reel[(i + d + reel.length) % reel.length];
+    const src = r && stillFor(r.sl);
+    if(src) { const im = new Image(); im.src = src; }
+  });
+}
+
 /* Put the next slide on top at zero opacity, bring it up, and take whatever
    was already there down at the same time. Removing the old layer is what
-   stops any video or embed inside it. */
+   stops any video or embed inside it.
+   The incoming image is decoded first — fading up a layer whose picture has
+   not arrived shows the dark ground through it, then the photo snaps in. */
 function paintMedia(sl, w, crossfade){
+  const still = stillFor(sl);
+  if(crossfade && still){
+    const im = new Image();
+    let started = false;
+    const go = () => { if(!started){ started = true; build(); } };
+    im.onload = go;
+    im.onerror = go;
+    setTimeout(go, 700);        // never stall on a slow file
+    im.src = still;
+    if(im.complete) go();       // already cached
+    return;
+  }
+  build();
+
+  function build(){
   const slide = document.createElement('div');
   slide.className = 'stage-slide';
   slide.innerHTML = embed(sl, w);
@@ -832,6 +868,7 @@ function paintMedia(sl, w, crossfade){
     a.onfinish = drop;
     a.oncancel = drop;
   });
+  }
 }
 
 function backdrop(sl){
