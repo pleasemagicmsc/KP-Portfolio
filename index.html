@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Keril Priola — Multimedia &amp; Marketing</title>
+<title>KP - Works</title>
 
 <!-- Tab and browser chrome -->
-<link rel="icon" href="Assets/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="Assets/favicon.svg" sizes="any">
-<link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
+<link rel="icon" href="/Assets/tablogo.svg" type="image/svg+xml">
+<link rel="icon" href="/Assets/tablogo.png" sizes="any">
+<link rel="apple-touch-icon" href="/Assets/tablogo.png">
 <meta name="theme-color" content="#40513B">
 
 <!-- Search results -->
@@ -18,7 +18,7 @@
 <!-- Link previews: LinkedIn, Messenger, Slack, iMessage -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Keril Priola">
-<meta property="og:title" content="Keril Priola — Multimedia & Marketing">
+<meta property="og:title" content="KP - Works">
 <meta property="og:description" content="Selected work in graphic design, video, motion, branding, and content strategy by Keril Priola, a multimedia and marketing generalist based in Laguna, Philippines.">
 <meta property="og:url" content="https://kp-portfolio-khaki.vercel.app/">
 <meta property="og:image" content="https://kp-portfolio-khaki.vercel.app/Assets/share.jpg">
@@ -475,7 +475,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
     <div class="section-head">
       <h2 class="display" id="info">Info</h2>
-      <a class="pill pill--icon" href="info.html"
+      <a class="pill pill--icon" href="/info"
          aria-label="Open the info page" title="Open the info page">+</a>
     </div>
 
@@ -1047,10 +1047,14 @@ toggle.addEventListener('click', () => setWork(workBox.dataset.collapsed === 'tr
 /* ---------- Close before leaving ----------
    An open section shuts itself before the page changes, so the next page is
    never entered with something left hanging open behind it. */
-document.querySelectorAll('a[href$=".html"]').forEach(link => {
+document.querySelectorAll('a[href]').forEach(link => {
   link.addEventListener('click', e => {
     if(e.metaKey || e.ctrlKey || e.shiftKey || link.target === '_blank') return;
     const url = link.getAttribute('href');
+    /* Only our own pages. Skips anchors, mail links, and anything offsite —
+       extensions are gone from the URLs, so this can no longer key off .html */
+    if(!url || url[0] === '#' || /^[a-z]+:/i.test(url)) return;
+    if(new URL(url, location.href).origin !== location.origin) return;
     if(workBox.dataset.collapsed === 'true'){          // nothing to close
       e.preventDefault();
       fadeCurtain(1).then(() => { window.location.href = url; });

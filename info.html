@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Info — Keril Priola</title>
+<title>KP - Info</title>
 
 <!-- Tab and browser chrome -->
-<link rel="icon" href="Assets/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="Assets/favicon.svg" sizes="any">
-<link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
+<link rel="icon" href="/Assets/tablogo.svg" type="image/svg+xml">
+<link rel="icon" href="/Assets/tablogo.png" sizes="any">
+<link rel="apple-touch-icon" href="/Assets/tablogo.png">
 <meta name="theme-color" content="#40513B">
 
 <!-- Search results -->
-<meta name="description" content="About Keril Priola: skillset across graphics and branding, video and short film, motion, sound, podcast, presentations, and content strategy.">
-<link rel="canonical" href="https://kp-portfolio-khaki.vercel.app/info.html">
+<meta name="description" content="About Keril Priola: skillset across marketing and branding, graphics, video and motion, AI workflows, and audio production, plus certifications and awards.">
+<link rel="canonical" href="https://kp-portfolio-khaki.vercel.app/info">
 
 <!-- Link previews: LinkedIn, Messenger, Slack, iMessage -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Keril Priola">
-<meta property="og:title" content="Info — Keril Priola">
-<meta property="og:description" content="About Keril Priola: skillset across graphics and branding, video and short film, motion, sound, podcast, presentations, and content strategy.">
-<meta property="og:url" content="https://kp-portfolio-khaki.vercel.app/info.html">
+<meta property="og:title" content="KP - Info">
+<meta property="og:description" content="About Keril Priola: skillset across marketing and branding, graphics, video and motion, AI workflows, and audio production, plus certifications and awards.">
+<meta property="og:url" content="https://kp-portfolio-khaki.vercel.app/info">
 <meta property="og:image" content="https://kp-portfolio-khaki.vercel.app/Assets/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -376,7 +376,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
   <section class="column control">
 
     <div class="masthead">
-      <h1 class="display"><a href="index.html">Keril&nbsp;Priola</a></h1>
+      <h1 class="display"><a href="/">Keril&nbsp;Priola</a></h1>
     </div>
 
     <hr class="rule">
@@ -385,7 +385,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
          Its '+' goes to the page where it opens fully. -->
     <div class="section-head">
       <h2 class="display" id="work">Work</h2>
-      <a class="pill pill--icon" href="index.html"
+      <a class="pill pill--icon" href="/"
          aria-label="Open the work page" title="Open the work page">+</a>
     </div>
 
@@ -697,10 +697,14 @@ function initCollapsible(box){
   toggle.addEventListener('click', () => setInfo(box.dataset.collapsed === 'true'));
 
   /* ---------- Close before leaving ---------- */
-  document.querySelectorAll('a[href$=".html"]').forEach(link => {
+  document.querySelectorAll('a[href]').forEach(link => {
     link.addEventListener('click', e => {
       if(e.metaKey || e.ctrlKey || e.shiftKey || link.target === '_blank') return;
       const url = link.getAttribute('href');
+      /* Only our own pages. Skips anchors, mail links, and anything offsite —
+         extensions are gone from the URLs, so this can no longer key off .html */
+      if(!url || url[0] === '#' || /^[a-z]+:/i.test(url)) return;
+      if(new URL(url, location.href).origin !== location.origin) return;
       if(box.dataset.collapsed === 'true'){          // nothing to close
         e.preventDefault();
         fadeCurtain(1).then(() => { window.location.href = url; });
