@@ -62,7 +62,7 @@
       "id": "w_cth4pid",
       "title": "NMM - Summer Fridays",
       "kind": "",
-      "year": "2026",
+      "year": "2025",
       "categories": [
         "graphics"
       ],
@@ -102,7 +102,7 @@
       "id": "w_1jjtsye",
       "title": "GScore - Brand Bible",
       "kind": "",
-      "year": "2026",
+      "year": "2024",
       "categories": [
         "graphics",
         "presentations",
@@ -150,7 +150,7 @@
       "id": "w_0fu0mhr",
       "title": "UBE Media - Holy Week Campaign",
       "kind": "",
-      "year": "2026",
+      "year": "2025",
       "categories": [
         "graphics"
       ],
@@ -230,7 +230,7 @@
       "id": "w_yu0vrdo",
       "title": "SANDBOX PH - AVP",
       "kind": "",
-      "year": "2026",
+      "year": "2021",
       "categories": [
         "video",
         "motion",
@@ -260,7 +260,7 @@
       "id": "w_cqzx019",
       "title": "JMA - Ati-Atihan Poster",
       "kind": "",
-      "year": "2026",
+      "year": "2024",
       "categories": [
         "graphics"
       ],
@@ -290,7 +290,7 @@
       "id": "w_yx4g00o",
       "title": "Net 25 - ML Tournament Teaser",
       "kind": "",
-      "year": "2026",
+      "year": "2022",
       "categories": [
         "video",
         "motion"
@@ -299,6 +299,63 @@
       "src": "I2WA85a4wjE",
       "aspect": 1.7778,
       "order": 10
+    },
+    {
+      "id": "w_q4tuo6l",
+      "title": "JMA Walk the Talk - Episode 1",
+      "kind": "Podcast",
+      "year": "2023",
+      "categories": [
+        "podcast"
+      ],
+      "type": "spotify",
+      "src": "episode/1vrg4oWe4DDCw55wM52xjJ",
+      "aspect": 1.7778,
+      "order": 11
+    },
+    {
+      "id": "w_cf7eck2",
+      "title": "JMA Walk the Talk - Episode 6",
+      "kind": "Podcast",
+      "year": "2024",
+      "categories": [
+        "podcast",
+        "video",
+        "motion",
+        "sfx"
+      ],
+      "type": "spotify",
+      "src": "episode/77gfRRNUytvpPtKmSLro03",
+      "aspect": 1.7778,
+      "order": 12
+    },
+    {
+      "id": "w_0678w5a",
+      "title": "DLSL JMA - Introduction (2024)",
+      "kind": "Video",
+      "year": "2024",
+      "categories": [
+        "video",
+        "motion",
+        "sfx"
+      ],
+      "type": "youtube",
+      "src": "EAl5xUg04IY",
+      "aspect": 1.7778,
+      "order": 13
+    },
+    {
+      "id": "w_fte9ht0",
+      "title": "Principles of Scaling - Zoom Podcast",
+      "kind": "Podcast",
+      "year": "2023",
+      "categories": [
+        "podcast"
+      ],
+      "type": "spotify",
+      "src": "show/6ee2LAOSeR0N4nUyl0ihav",
+      "aspect": 1.7778,
+      "order": 14
     }
   ]
 }
