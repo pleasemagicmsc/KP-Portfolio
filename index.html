@@ -552,7 +552,7 @@ const CATEGORIES = [
   { id:'podcast',       label:'Podcast'         }
 ];
 
-const PLAYABLE = ['youtube','vimeo','video','spotify'];
+const PLAYABLE = ['youtube','vimeo','video','spotify','embed'];
 
 /* Aspect = width / height. Clamped so one extreme piece can't swallow the
    column: nothing narrower than 2:3 portrait or wider than 21:9. */
@@ -567,7 +567,11 @@ function applyShape(btn, ar){
 }
 function clampAR(a, type){
   const n = Number(a);
-  if(type === 'spotify') return 16/9;      /* the player sizes itself inside */
+  /* Embedded players carry the ratio their platform needs — a TikTok is
+     portrait, a SoundCloud player is wide — so those are used as given
+     rather than squeezed into the tile clamp. */
+  if(type === 'embed' || type === 'spotify')
+    return (n && isFinite(n)) ? n : 16/9;
   if(!n || !isFinite(n)) return PLAYABLE.includes(type) ? 16/9 : 3/2;
   return Math.min(AR_MAX, Math.max(AR_MIN, n));
 }
@@ -904,6 +908,13 @@ function backdrop(sl){
 }
 
 function embed(sl, w){
+  if(sl.type === 'embed')
+    /* src is a ready-made embed URL, built in the studio. Instagram, TikTok,
+       Facebook, SoundCloud, Behance, Figma all render through here. */
+    return backdrop(sl) + '<iframe src="' + sl.src + '" loading="lazy" ' +
+           'scrolling="no" allow="autoplay; clipboard-write; encrypted-media; ' +
+           'fullscreen; picture-in-picture" allowfullscreen ' +
+           'referrerpolicy="strict-origin-when-cross-origin"></iframe>';
   if(sl.type === 'spotify')
     /* src is the path after open.spotify.com — 'episode/ID', 'show/ID',
        'track/ID', 'playlist/ID'. theme=0 gives the dark player. */

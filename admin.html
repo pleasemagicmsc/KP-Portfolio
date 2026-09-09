@@ -104,7 +104,7 @@ code{background:rgba(229,217,182,.12);padding:2px 6px;border-radius:5px;font-siz
 </p>
 
 <div id="drop">
-  <p>Drop video or image files here &mdash; or add a YouTube, Vimeo, or Spotify link.</p>
+  <p>Drop video or image files here &mdash; or paste a link from YouTube, Vimeo,<br>Spotify, Instagram, TikTok, Facebook, SoundCloud, Behance, or Figma.</p>
   <div class="bar" style="justify-content:center">
     <button class="pill" id="pick">Choose files</button>
     <button class="pill ghost" id="addLink">Add a link</button>
@@ -244,6 +244,60 @@ function spotifyPath(url){
   return m ? m[1] + '/' + m[2] : null;
 }
 
+/* ---------- Embed resolver ----------
+   Turns a pasted URL into something the site can render. Platforms with their
+   own handling (YouTube, Vimeo, Spotify) keep their type. Everything else
+   becomes a generic 'embed' carrying a ready-made iframe URL, so adding a new
+   platform means adding one line here and nothing on the site side.
+   'ratio' is width / height for the frame the player sits in. */
+const EMBEDS = [
+  { name:'Instagram', ratio:0.80, kind:'Social', cat:'graphics',
+    test:/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/,
+    url:m => 'https://www.instagram.com/p/' + m[1] + '/embed' },
+
+  { name:'TikTok', ratio:0.62, kind:'Social', cat:'video',
+    test:/tiktok\.com\/@[\w.-]+\/video\/(\d+)/,
+    url:m => 'https://www.tiktok.com/embed/v2/' + m[1] },
+
+  { name:'Facebook', ratio:0.78, kind:'Social', cat:'graphics',
+    test:/facebook\.com\/[^?#]+\/(?:posts|videos)\/[\w.-]+/,
+    url:(m,raw) => 'https://www.facebook.com/plugins/post.php?href=' +
+                   encodeURIComponent(raw.split('?')[0]) + '&show_text=true&width=500' },
+
+  { name:'SoundCloud', ratio:1.60, kind:'Music', cat:'music',
+    test:/soundcloud\.com\/[\w-]+\/[\w-]+/,
+    url:(m,raw) => 'https://w.soundcloud.com/player/?url=' +
+                   encodeURIComponent(raw.split('?')[0]) +
+                   '&color=%23628141&visual=true&hide_related=true' },
+
+  { name:'Behance', ratio:16/9, kind:'Graphics', cat:'graphics',
+    test:/behance\.net\/gallery\/(\d+)/,
+    url:m => 'https://www.behance.net/embed/project/' + m[1] },
+
+  { name:'Figma', ratio:16/9, kind:'Design', cat:'presentations',
+    test:/figma\.com\/(?:file|proto|design|board)\//,
+    url:(m,raw) => 'https://www.figma.com/embed?embed_host=share&url=' +
+                   encodeURIComponent(raw) },
+];
+
+function resolveEmbed(raw){
+  const url = raw.trim();
+  const y = ytId(url);      if(y)  return { type:'youtube', src:y,  aspect:16/9, kind:'Video',   cat:'video',   name:'YouTube' };
+  const v = vimeoId(url);   if(v)  return { type:'vimeo',   src:v,  aspect:16/9, kind:'Video',   cat:'video',   name:'Vimeo' };
+  const sp = spotifyPath(url);
+  if(sp){
+    const pod = /^(episode|show)\//.test(sp);
+    return { type:'spotify', src:sp, aspect:16/9,
+             kind: pod ? 'Podcast' : 'Music', cat: pod ? 'podcast' : 'music', name:'Spotify' };
+  }
+  for(const e of EMBEDS){
+    const m = url.match(e.test);
+    if(m) return { type:'embed', src:e.url(m, url), aspect:e.ratio,
+                   kind:e.kind, cat:e.cat, name:e.name };
+  }
+  return null;
+}
+
 /* Re-encode an image to WebP at web size. PNG in, WebP out — usually a
    10-20x saving on flat graphic work, with alpha preserved.
    Falls back to the original if the conversion somehow comes out bigger. */
@@ -373,26 +427,24 @@ async function addFiles(files, intoId){
 }
 
 function addLink(){
-  const url = prompt('Paste a YouTube, Vimeo, or Spotify URL');
+  const url = prompt('Paste a link — YouTube, Vimeo, Spotify, Instagram, TikTok,\nFacebook, SoundCloud, Behance, or Figma');
   if(!url) return;
-  const y = ytId(url), v = vimeoId(url), sp = spotifyPath(url);
-  if(!y && !v && !sp){
-    alert("That didn't parse as a YouTube, Vimeo, or Spotify link.");
+  const r = resolveEmbed(url);
+  if(!r){
+    alert("That link is not one of the supported platforms.\n\nYouTube, Vimeo, Spotify, Instagram, TikTok, Facebook,\nSoundCloud, Behance, Figma.");
     return;
   }
-  const type = y ? 'youtube' : v ? 'vimeo' : 'spotify';
-  const isPod = type === 'spotify' && /^(episode|show)\//.test(sp);
   items.push({
     id: uid(),
     title: 'Untitled',
-    kind: isPod ? 'Podcast' : type === 'spotify' ? 'Music' : 'Video',
+    kind: r.kind,
     year: String(new Date().getFullYear()),
-    categories: [isPod ? 'podcast' : type === 'spotify' ? 'music' : 'video'],
+    categories: [r.cat],
     slides: [{
-      type: type,
-      src: y || v || sp,
+      type: r.type,
+      src: r.src,
       blob: null, posterBlob: null, optBlob: null,
-      aspect: 16/9
+      aspect: r.aspect
     }]
   });
   render(); save();
