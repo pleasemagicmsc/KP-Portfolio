@@ -194,7 +194,6 @@ function migrate(list){
     return {
       id: it.id || uid(),
       title: it.title || 'Untitled',
-      kind: it.kind || 'Graphics',
       year: it.year || String(new Date().getFullYear()),
       categories: it.categories || [],
       slides: [{
@@ -250,30 +249,30 @@ function spotifyPath(url){
    platform means adding one line here and nothing on the site side.
    'ratio' is width / height for the frame the player sits in. */
 const EMBEDS = [
-  { name:'Instagram', ratio:0.80, kind:'Social', cat:'graphics',
+  { name:'Instagram', ratio:0.80, cat:'graphics',
     test:/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/,
     url:m => 'https://www.instagram.com/p/' + m[1] + '/embed' },
 
-  { name:'TikTok', ratio:0.62, kind:'Social', cat:'video',
+  { name:'TikTok', ratio:0.62, cat:'video',
     test:/tiktok\.com\/@[\w.-]+\/video\/(\d+)/,
     url:m => 'https://www.tiktok.com/embed/v2/' + m[1] },
 
-  { name:'Facebook', ratio:0.78, kind:'Social', cat:'graphics',
+  { name:'Facebook', ratio:0.78, cat:'graphics',
     test:/facebook\.com\/[^?#]+\/(?:posts|videos)\/[\w.-]+/,
     url:(m,raw) => 'https://www.facebook.com/plugins/post.php?href=' +
                    encodeURIComponent(raw.split('?')[0]) + '&show_text=true&width=500' },
 
-  { name:'SoundCloud', ratio:1.60, kind:'Music', cat:'music',
+  { name:'SoundCloud', ratio:1.60, cat:'music',
     test:/soundcloud\.com\/[\w-]+\/[\w-]+/,
     url:(m,raw) => 'https://w.soundcloud.com/player/?url=' +
                    encodeURIComponent(raw.split('?')[0]) +
                    '&color=%23628141&visual=true&hide_related=true' },
 
-  { name:'Behance', ratio:16/9, kind:'Graphics', cat:'graphics',
+  { name:'Behance', ratio:16/9, cat:'graphics',
     test:/behance\.net\/gallery\/(\d+)/,
     url:m => 'https://www.behance.net/embed/project/' + m[1] },
 
-  { name:'Figma', ratio:16/9, kind:'Design', cat:'presentations',
+  { name:'Figma', ratio:16/9, cat:'presentations',
     test:/figma\.com\/(?:file|proto|design|board)\//,
     url:(m,raw) => 'https://www.figma.com/embed?embed_host=share&url=' +
                    encodeURIComponent(raw) },
@@ -281,18 +280,16 @@ const EMBEDS = [
 
 function resolveEmbed(raw){
   const url = raw.trim();
-  const y = ytId(url);      if(y)  return { type:'youtube', src:y,  aspect:16/9, kind:'Video',   cat:'video',   name:'YouTube' };
-  const v = vimeoId(url);   if(v)  return { type:'vimeo',   src:v,  aspect:16/9, kind:'Video',   cat:'video',   name:'Vimeo' };
+  const y = ytId(url);      if(y)  return { type:'youtube', src:y,  aspect:16/9,   cat:'video',   name:'YouTube' };
+  const v = vimeoId(url);   if(v)  return { type:'vimeo',   src:v,  aspect:16/9,   cat:'video',   name:'Vimeo' };
   const sp = spotifyPath(url);
   if(sp){
     const pod = /^(episode|show)\//.test(sp);
-    return { type:'spotify', src:sp, aspect:16/9,
-             kind: pod ? 'Podcast' : 'Music', cat: pod ? 'podcast' : 'music', name:'Spotify' };
+    return { type:'spotify', src:sp, aspect:16/9, cat: pod ? 'podcast' : 'music', name:'Spotify' };
   }
   for(const e of EMBEDS){
     const m = url.match(e.test);
-    if(m) return { type:'embed', src:e.url(m, url), aspect:e.ratio,
-                   kind:e.kind, cat:e.cat, name:e.name };
+    if(m) return { type:'embed', src:e.url(m, url), aspect:e.ratio, cat:e.cat, name:e.name };
   }
   return null;
 }
@@ -382,7 +379,6 @@ function newItem(name, isVideo){
   return {
     id: uid(),
     title: name.replace(/\.[^.]+$/,''),
-    kind: isVideo ? 'Video' : 'Graphics',
     year: String(new Date().getFullYear()),
     categories: isVideo ? ['video'] : ['graphics'],
     slides: []
@@ -436,7 +432,6 @@ function addLink(){
   items.push({
     id: uid(),
     title: 'Untitled',
-    kind: r.kind,
     year: String(new Date().getFullYear()),
     categories: [r.cat],
     slides: [{
@@ -494,7 +489,6 @@ function render(){
       '<div class="fields">' +
         '<div class="pair">' +
           '<label class="f">Title<input data-k="title" value="' + esc(it.title) + '"></label>' +
-          '<label class="f" style="max-width:190px">Label<input data-k="kind" value="' + esc(it.kind) + '"></label>' +
           '<label class="f" style="max-width:110px">Year<input data-k="year" value="' + esc(it.year||'') + '"></label>' +
         '</div>' +
         '<div class="cats"></div>' +
@@ -649,7 +643,6 @@ function manifest(){
       const out = {
         id: it.id,
         title: it.title,
-        kind: it.kind,
         year: it.year,
         categories: it.categories,
         type: first.type,
