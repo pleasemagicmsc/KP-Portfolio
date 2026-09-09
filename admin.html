@@ -104,10 +104,10 @@ code{background:rgba(229,217,182,.12);padding:2px 6px;border-radius:5px;font-siz
 </p>
 
 <div id="drop">
-  <p>Drop video or image files here &mdash; or add a YouTube / Vimeo link.</p>
+  <p>Drop video or image files here &mdash; or add a YouTube, Vimeo, or Spotify link.</p>
   <div class="bar" style="justify-content:center">
     <button class="pill" id="pick">Choose files</button>
-    <button class="pill ghost" id="addLink">Add a video link</button>
+    <button class="pill ghost" id="addLink">Add a link</button>
   </div>
   <input type="file" id="file" multiple accept="video/*,image/*" hidden>
     <input type="file" id="pagefile" multiple accept="video/*,image/*" hidden>
@@ -237,6 +237,11 @@ function ytId(url){
 function vimeoId(url){
   const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   return m ? m[1] : null;
+}
+/* Returns the path Spotify embeds want: 'episode/ID', 'show/ID', and so on */
+function spotifyPath(url){
+  const m = url.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(episode|show|track|album|playlist)\/([A-Za-z0-9]+)/);
+  return m ? m[1] + '/' + m[2] : null;
 }
 
 /* Re-encode an image to WebP at web size. PNG in, WebP out — usually a
@@ -368,19 +373,24 @@ async function addFiles(files, intoId){
 }
 
 function addLink(){
-  const url = prompt('Paste a YouTube or Vimeo URL');
+  const url = prompt('Paste a YouTube, Vimeo, or Spotify URL');
   if(!url) return;
-  const y = ytId(url), v = vimeoId(url);
-  if(!y && !v){ alert("That didn't parse as a YouTube or Vimeo link."); return; }
+  const y = ytId(url), v = vimeoId(url), sp = spotifyPath(url);
+  if(!y && !v && !sp){
+    alert("That didn't parse as a YouTube, Vimeo, or Spotify link.");
+    return;
+  }
+  const type = y ? 'youtube' : v ? 'vimeo' : 'spotify';
+  const isPod = type === 'spotify' && /^(episode|show)\//.test(sp);
   items.push({
     id: uid(),
     title: 'Untitled',
-    kind: 'Video',
+    kind: isPod ? 'Podcast' : type === 'spotify' ? 'Music' : 'Video',
     year: String(new Date().getFullYear()),
-    categories: ['video'],
+    categories: [isPod ? 'podcast' : type === 'spotify' ? 'music' : 'video'],
     slides: [{
-      type: y ? 'youtube' : 'vimeo',
-      src: y || v,
+      type: type,
+      src: y || v || sp,
       blob: null, posterBlob: null, optBlob: null,
       aspect: 16/9
     }]

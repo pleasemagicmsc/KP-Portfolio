@@ -4,6 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Keril Priola — Multimedia &amp; Marketing</title>
+
+<!-- Tab and browser chrome -->
+<link rel="icon" href="Assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="Assets/favicon.svg" sizes="any">
+<link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
+<meta name="theme-color" content="#40513B">
+
+<!-- Search results -->
+<meta name="description" content="Selected work in graphic design, video, motion, branding, and content strategy by Keril Priola, a multimedia and marketing generalist based in Laguna, Philippines.">
+<link rel="canonical" href="https://kp-portfolio-khaki.vercel.app/">
+
+<!-- Link previews: LinkedIn, Messenger, Slack, iMessage -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Keril Priola">
+<meta property="og:title" content="Keril Priola — Multimedia & Marketing">
+<meta property="og:description" content="Selected work in graphic design, video, motion, branding, and content strategy by Keril Priola, a multimedia and marketing generalist based in Laguna, Philippines.">
+<meta property="og:url" content="https://kp-portfolio-khaki.vercel.app/">
+<meta property="og:image" content="https://kp-portfolio-khaki.vercel.app/Assets/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Keril Priola — Multimedia and Marketing">
+<meta name="twitter:card" content="summary_large_image">
 <!-- Both faces from Fontshare (Indian Type Foundry), one request.
      Satoshi — Deni Anggara, the sans doing everything.
      Lora — Cyreal, upright, for the quieter sub copy.
@@ -530,7 +552,7 @@ const CATEGORIES = [
   { id:'podcast',       label:'Podcast'         }
 ];
 
-const PLAYABLE = ['youtube','vimeo','video'];
+const PLAYABLE = ['youtube','vimeo','video','spotify'];
 
 /* Aspect = width / height. Clamped so one extreme piece can't swallow the
    column: nothing narrower than 2:3 portrait or wider than 21:9. */
@@ -545,6 +567,7 @@ function applyShape(btn, ar){
 }
 function clampAR(a, type){
   const n = Number(a);
+  if(type === 'spotify') return 16/9;      /* the player sizes itself inside */
   if(!n || !isFinite(n)) return PLAYABLE.includes(type) ? 16/9 : 3/2;
   return Math.min(AR_MAX, Math.max(AR_MIN, n));
 }
@@ -881,6 +904,12 @@ function backdrop(sl){
 }
 
 function embed(sl, w){
+  if(sl.type === 'spotify')
+    /* src is the path after open.spotify.com — 'episode/ID', 'show/ID',
+       'track/ID', 'playlist/ID'. theme=0 gives the dark player. */
+    return backdrop(sl) + '<iframe src="https://open.spotify.com/embed/' + sl.src +
+           '?utm_source=generator&theme=0" allow="autoplay; clipboard-write; ' +
+           'encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>';
   if(sl.type === 'youtube')
     return backdrop(sl) + '<iframe src="https://www.youtube.com/embed/' + sl.src +
            '?autoplay=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
