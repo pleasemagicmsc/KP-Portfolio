@@ -111,6 +111,7 @@ code{background:rgba(229,217,182,.12);padding:2px 6px;border-radius:5px;font-siz
   </div>
   <input type="file" id="file" multiple accept="video/*,image/*" hidden>
     <input type="file" id="pagefile" multiple accept="video/*,image/*" hidden>
+    <input type="file" id="coverfile" accept="image/*" hidden>
 </div>
 
 <hr>
@@ -447,6 +448,7 @@ function addLink(){
 /* ---------- render ---------- */
 const $list = document.getElementById('list');
 const pageInput = document.getElementById('pagefile');
+const coverInput = document.getElementById('coverfile');
 
 function previewSrc(sl){
   if(sl.posterBlob) return URL.createObjectURL(sl.posterBlob);
@@ -498,6 +500,9 @@ function render(){
       '<div class="side">' +
         '<div class="handle" title="Drag to reorder">⣿</div>' +
         '<button class="pill sm ghost" data-a="pages">Add pages</button>' +
+        (first && !first.blob
+          ? '<button class="pill sm ghost" data-a="cover">' +
+            (first.posterBlob ? 'Change cover' : 'Add cover') + '</button>' : '') +
         '<button class="pill sm ghost" data-a="up">Move up</button>' +
         '<button class="pill sm ghost" data-a="down">Move down</button>' +
         '<button class="pill sm ghost" data-a="del">Remove</button>' +
@@ -562,7 +567,11 @@ function render(){
         (saved > 0 ? ', ' + saved + '% smaller' : '') +
         (totalOut > 20*1048576 ? ' <span class="warn">— large for git, consider a video link</span>' : '');
     }else{
-      p.innerHTML = first.type + ' &middot; <code>' + first.src + '</code><br>' + shapeOf(first);
+      p.innerHTML = first.type + ' &middot; <code>' + first.src + '</code><br>' + shapeOf(first) +
+        (first.posterBlob
+          ? '<br>cover exports as <code>' + MEDIA_DIR + '/' + slideName(it,0) +
+            '-poster.' + (first.posterExt || 'jpg') + '</code> &middot; ' + mb(first.posterBlob.size)
+          : '<br><span class="warn">no cover &mdash; the tile shows the placeholder</span>');
     }
 
     /* inputs */
@@ -576,6 +585,7 @@ function render(){
       b.onclick = () => {
         const a = b.dataset.a;
         if(a === 'pages'){ pageInput.dataset.into = it.id; pageInput.click(); return; }
+        if(a === 'cover'){ coverInput.dataset.into = it.id; coverInput.click(); return; }
         if(a === 'del'){ items.splice(i,1); }
         if(a === 'up' && i > 0){ [items[i-1], items[i]] = [items[i], items[i-1]]; }
         if(a === 'down' && i < items.length-1){ [items[i+1], items[i]] = [items[i], items[i+1]]; }
@@ -623,7 +633,7 @@ function slidePath(it, sl, k){
   return sl.src;                                   // a hosted video id
 }
 function posterPath(it, sl, k){
-  if(sl.posterBlob) return MEDIA_DIR + '/' + slideName(it, k) + '-poster.jpg';
+  if(sl.posterBlob) return MEDIA_DIR + '/' + slideName(it, k) + '-poster.' + (sl.posterExt || 'jpg');
   if(sl.type === 'image' && sl.blob) return slidePath(it, sl, k);
   return undefined;
 }
@@ -675,10 +685,15 @@ document.getElementById('exportJson').onclick = () =>
 document.getElementById('exportMedia').onclick = async () => {
   const jobs = [];
   items.forEach(it => it.slides.forEach((sl, k) => {
-    if(!sl.blob) return;                            // hosted video, nothing to save
+    if(!sl.blob){
+      /* a hosted embed with an uploaded cover still has one file to save */
+      if(sl.posterBlob)
+        jobs.push([sl.posterBlob, slideName(it, k) + '-poster.' + (sl.posterExt || 'jpg')]);
+      return;
+    }
     const out = outputOf(sl);
     jobs.push([out.blob, slideName(it, k) + '.' + out.ext]);
-    if(sl.posterBlob) jobs.push([sl.posterBlob, slideName(it, k) + '-poster.jpg']);
+    if(sl.posterBlob) jobs.push([sl.posterBlob, slideName(it, k) + '-poster.' + (sl.posterExt || 'jpg')]);
   }));
   if(!jobs.length){ alert('No uploaded files to save — hosted video links do not need any.'); return; }
   for(const [blob, name] of jobs){
@@ -699,6 +714,23 @@ const fileInput = document.getElementById('file');
 document.getElementById('pick').onclick = () => fileInput.click();
 document.getElementById('addLink').onclick = addLink;
 fileInput.onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+
+/* A cover is the tile image for a piece whose media lives on another
+   platform — a Spotify episode, an Instagram post. Compressed like any other
+   image. The slide keeps the player's own ratio; the tile takes the cover's,
+   which the site measures for itself. */
+coverInput.onchange = async e => {
+  const f = e.target.files && e.target.files[0];
+  const it = items.find(x => x.id === coverInput.dataset.into);
+  coverInput.dataset.into = ''; e.target.value = '';
+  if(!f || !it || !it.slides.length) return;
+
+  const sl = it.slides[0];
+  const o = await optimise(f);
+  sl.posterBlob = o ? o.blob : f;
+  sl.posterExt  = o ? 'webp' : (ext(f.name) || 'jpg');
+  render(); save();
+};
 
 pageInput.onchange = e => {
   addFiles(e.target.files, pageInput.dataset.into);
