@@ -494,6 +494,135 @@
           "aspect": 1
         }
       ]
+    },
+    {
+      "id": "w_ho5s31l",
+      "title": "NextGen Energy: Documentation",
+      "year": "2024",
+      "categories": [
+        "graphics",
+        "branding",
+        "presentations"
+      ],
+      "type": "image",
+      "src": "Assets/nextgen-energy-documentation-01.webp",
+      "aspect": 1.7778,
+      "order": 18,
+      "poster": "Assets/nextgen-energy-documentation-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-01.webp",
+          "poster": "Assets/nextgen-energy-documentation-01.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-02.webp",
+          "poster": "Assets/nextgen-energy-documentation-02.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-03.webp",
+          "poster": "Assets/nextgen-energy-documentation-03.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-04.webp",
+          "poster": "Assets/nextgen-energy-documentation-04.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-05.webp",
+          "poster": "Assets/nextgen-energy-documentation-05.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-06.webp",
+          "poster": "Assets/nextgen-energy-documentation-06.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-07.webp",
+          "poster": "Assets/nextgen-energy-documentation-07.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-08.webp",
+          "poster": "Assets/nextgen-energy-documentation-08.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-09.webp",
+          "poster": "Assets/nextgen-energy-documentation-09.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-10.webp",
+          "poster": "Assets/nextgen-energy-documentation-10.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-documentation-11.webp",
+          "poster": "Assets/nextgen-energy-documentation-11.webp",
+          "aspect": 1.7778
+        }
+      ]
+    },
+    {
+      "id": "w_7ezuakt",
+      "title": "NextGen Energy: Collaterals and Mockups",
+      "year": "2024",
+      "categories": [
+        "graphics",
+        "branding"
+      ],
+      "type": "image",
+      "src": "Assets/nextgen-energy-collaterals-and-mockups-01.webp",
+      "aspect": 1.2945,
+      "order": 19,
+      "poster": "Assets/nextgen-energy-collaterals-and-mockups-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-collaterals-and-mockups-01.webp",
+          "poster": "Assets/nextgen-energy-collaterals-and-mockups-01.webp",
+          "aspect": 1.2945
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-collaterals-and-mockups-02.webp",
+          "poster": "Assets/nextgen-energy-collaterals-and-mockups-02.webp",
+          "aspect": 1.2945
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-collaterals-and-mockups-03.webp",
+          "poster": "Assets/nextgen-energy-collaterals-and-mockups-03.webp",
+          "aspect": 1.2945
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-collaterals-and-mockups-04.webp",
+          "poster": "Assets/nextgen-energy-collaterals-and-mockups-04.webp",
+          "aspect": 1.2945
+        },
+        {
+          "type": "image",
+          "src": "Assets/nextgen-energy-collaterals-and-mockups-05.webp",
+          "poster": "Assets/nextgen-energy-collaterals-and-mockups-05.webp",
+          "aspect": 1.2939
+        }
+      ]
     }
   ]
 }
