@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work Studio — dev only</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#40513B; --moss:#628141; --sand:#E5D9B6; --ember:#E67E22; --deep:#33412F;
+  --font:'Inter', ui-sans-serif, system-ui, sans-serif;
+  --r:120px;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;padding:28px;
+  background:var(--forest);color:var(--sand);
+  font-family:var(--font);font-size:16px;line-height:1.4;
+}
+h1{font-size:40px;font-weight:400;margin:0 0 4px;}
+h2{font-size:22px;font-weight:400;margin:0;}
+.lede{opacity:.68;max-width:70ch;margin:0 0 24px;}
+hr{border:0;height:1px;background:linear-gradient(90deg,var(--forest),var(--moss) 40%,rgba(229,217,182,.8));margin:24px 0;}
+
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  border-radius:var(--r);border:1px solid var(--sand);
+  background:transparent;color:var(--sand);
+  padding:9px 15px;font:inherit;line-height:1;cursor:pointer;white-space:nowrap;
+  transition:border-color .15s, background-color .15s;
+}
+.pill:hover{border-color:var(--ember);}
+.pill.on{background:var(--ember);border-color:var(--ember);}
+.pill.ghost{border-color:rgba(229,217,182,.4);opacity:.75;}
+.pill.sm{padding:6px 11px;font-size:14px;}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+
+#drop{
+  border:1px dashed rgba(229,217,182,.5);
+  border-radius:14px;padding:36px;text-align:center;
+  transition:background-color .15s, border-color .15s;
+}
+#drop.hot{background:rgba(98,129,65,.35);border-color:var(--ember);}
+#drop p{margin:0 0 14px;opacity:.75;}
+
+.row{
+  display:grid;grid-template-columns:200px 1fr auto;gap:18px;
+  padding:18px;margin-bottom:14px;
+  background:var(--deep);border:1px solid rgba(229,217,182,.28);border-radius:14px;
+}
+.row.drag{opacity:.4;}
+.row .thumb{width:200px;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:8px;}
+.fields{display:flex;flex-direction:column;gap:10px;min-width:0;}
+.pair{display:flex;gap:10px;flex-wrap:wrap;}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;opacity:.7;flex:1;min-width:120px;}
+input,select{
+  font:inherit;font-size:15px;
+  background:var(--forest);color:var(--sand);
+  border:1px solid rgba(229,217,182,.4);border-radius:8px;padding:8px 10px;width:100%;
+}
+input:focus,select:focus{outline:2px solid var(--ember);outline-offset:1px;}
+.cats{display:flex;flex-wrap:wrap;gap:6px;}
+.side{display:flex;flex-direction:column;gap:6px;align-items:stretch;}
+.handle{cursor:grab;text-align:center;opacity:.5;font-size:20px;user-select:none;}
+.path{font-size:12.5px;opacity:.6;word-break:break-all;}
+.warn{color:var(--ember);font-size:13px;}
+.strip-head{font-size:12.5px;opacity:.6;margin-bottom:6px;}
+.strip{display:flex;gap:8px;flex-wrap:wrap;}
+.cell{position:relative;width:78px;}
+.cell img,.cell .ph{
+  width:78px;height:58px;object-fit:cover;border-radius:6px;
+  background:#000;display:block;border:1px solid rgba(229,217,182,.25);
+}
+.cell .n{
+  position:absolute;top:3px;left:5px;font-size:11px;
+  background:rgba(34,43,28,.8);padding:1px 5px;border-radius:20px;
+}
+.cellbar{display:flex;justify-content:space-between;margin-top:3px;}
+.cellbar button{
+  background:none;border:0;color:var(--sand);opacity:.6;
+  cursor:pointer;font-size:14px;line-height:1;padding:2px 5px;
+}
+.cellbar button:hover{opacity:1;color:var(--ember);}
+
+#out{
+  width:100%;min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
+  background:var(--deep);color:var(--sand);border:1px solid rgba(229,217,182,.3);
+  border-radius:10px;padding:14px;white-space:pre;overflow:auto;
+}
+.note{background:var(--deep);border:1px solid rgba(229,217,182,.28);border-radius:14px;padding:18px;}
+.note ol{margin:10px 0 0;padding-left:20px;}
+.note li{margin-bottom:7px;}
+code{background:rgba(229,217,182,.12);padding:2px 6px;border-radius:5px;font-size:13.5px;}
+</style>
+</head>
+<body>
+
+<h1>Work Studio</h1>
+<p class="lede">
+  Local tool. Nothing here touches the live site by itself &mdash; you add pieces, order them,
+  then export <code>works.json</code> and the renamed media, and commit both. Everything is
+  kept in this browser until you export. Delete <code>admin.html</code> when the site is done.
+</p>
+
+<div id="drop">
+  <p>Drop video or image files here &mdash; or paste a link from YouTube, Vimeo,<br>Spotify, Instagram, TikTok, Facebook, SoundCloud, Behance, or Figma.</p>
+  <div class="bar" style="justify-content:center">
+    <button class="pill" id="pick">Choose files</button>
+    <button class="pill ghost" id="addLink">Add a link</button>
+  </div>
+  <input type="file" id="file" multiple accept="video/*,image/*" hidden>
+    <input type="file" id="pagefile" multiple accept="video/*,image/*" hidden>
+    <input type="file" id="coverfile" accept="image/*" hidden>
+</div>
+
+<hr>
+
+<div class="bar" style="justify-content:space-between">
+  <h2>Pieces <span id="count" style="opacity:.6"></span></h2>
+  <div class="bar">
+    <button class="pill" id="exportJson">Export works.json</button>
+    <button class="pill" id="exportMedia">Download renamed media</button>
+    <button class="pill ghost" id="clear">Clear all</button>
+  </div>
+</div>
+
+<div id="list" style="margin-top:18px"></div>
+
+<hr>
+
+<h2>works.json</h2>
+<p class="lede">Live preview. Export writes exactly this.</p>
+<div id="out"></div>
+
+<hr>
+
+<div class="note">
+  <h2>Publishing a batch</h2>
+  <ol>
+    <li>Add pieces above, name them, tick categories, drag to order.</li>
+    <li><b>Download renamed media</b> &mdash; saves every file under its slug, plus an auto-captured poster frame for videos.</li>
+    <li>Move those downloads into <code>/Assets</code> in your repo.</li>
+    <li><b>Export works.json</b> and replace the one at your repo root.</li>
+    <li>Commit and push. Vercel redeploys and the new work appears.</li>
+  </ol>
+  <p style="margin:14px 0 0;opacity:.7">
+    Large video files bloat a git repo and Vercel's bandwidth. Anything over ~20&nbsp;MB is
+    better on YouTube or Vimeo as an unlisted link &mdash; use <b>Add a video link</b> for those.
+  </p>
+</div>
+
+<script>
+/* Keep this list identical to CATEGORIES in index.html */
+const CATEGORIES = [
+  { id:'graphics',      label:'Graphics'        },
+  { id:'video',         label:'Video'           },
+  { id:'branding',      label:'Branding'        },
+  { id:'motion',        label:'Motion Graphics' },
+  { id:'music',         label:'Music'           },
+  { id:'sfx',           label:'SFX'             },
+  { id:'presentations', label:'Presentations'   },
+  { id:'podcast',       label:'Podcast'         }
+];
+
+/* Folder the exported paths point at. Must match MEDIA_DIR in index.html
+   and the real folder name, exactly — Vercel is case-sensitive. */
+const MEDIA_DIR = 'Assets';
+
+let items = [];
+
+/* ---------- storage (IndexedDB holds the blobs between refreshes) ---------- */
+const DB = 'workstudio';
+function db(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('state');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function save(){
+  try{
+    const d = await db();
+    d.transaction('state','readwrite').objectStore('state').put(items,'items');
+  }catch(e){ console.warn('save failed', e); }
+}
+/* Pieces saved before slides existed are one flat record. Fold each into a
+   single-slide list so old work in the browser keeps opening. */
+function migrate(list){
+  let changed = false;
+  const out = (list || []).map(it => {
+    if(Array.isArray(it.slides)) return it;
+    changed = true;
+    return {
+      id: it.id || uid(),
+      title: it.title || 'Untitled',
+      year: it.year || String(new Date().getFullYear()),
+      categories: it.categories || [],
+      slides: [{
+        type: it.type || (it.blob ? 'image' : 'youtube'),
+        src: it.src,
+        blob: it.blob || null,
+        fileExt: it.fileExt || null,
+        posterBlob: it.posterBlob || null,
+        optBlob: it.optBlob || null,
+        optimise: it.optimise !== false,
+        aspect: it.aspect || null,
+        optW: it.optW, optH: it.optH
+      }]
+    };
+  });
+  if(changed) console.info('Studio: migrated ' + out.length + ' piece(s) to the slide format.');
+  return out;
+}
+
+async function restore(){
+  try{
+    const d = await db();
+    const req = d.transaction('state','readonly').objectStore('state').get('items');
+    req.onsuccess = () => { items = migrate(req.result); render(); save(); };
+    req.onerror   = () => { items = []; render(); };
+  }catch(e){ items = []; render(); }
+}
+
+/* ---------- helpers ---------- */
+const slug = s => (s||'untitled').toLowerCase().trim()
+  .replace(/['']/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'untitled';
+const ext = n => (n.split('.').pop()||'').toLowerCase();
+const uid = () => 'w_' + Math.random().toString(36).slice(2,9);
+
+function ytId(url){
+  const m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function vimeoId(url){
+  const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return m ? m[1] : null;
+}
+/* Returns the path Spotify embeds want: 'episode/ID', 'show/ID', and so on */
+function spotifyPath(url){
+  const m = url.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(episode|show|track|album|playlist)\/([A-Za-z0-9]+)/);
+  return m ? m[1] + '/' + m[2] : null;
+}
+
+/* ---------- Embed resolver ----------
+   Turns a pasted URL into something the site can render. Platforms with their
+   own handling (YouTube, Vimeo, Spotify) keep their type. Everything else
+   becomes a generic 'embed' carrying a ready-made iframe URL, so adding a new
+   platform means adding one line here and nothing on the site side.
+   'ratio' is width / height for the frame the player sits in. */
+const EMBEDS = [
+  { name:'Instagram', ratio:0.80, cat:'graphics',
+    test:/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/,
+    url:m => 'https://www.instagram.com/p/' + m[1] + '/embed' },
+
+  { name:'TikTok', ratio:0.62, cat:'video',
+    test:/tiktok\.com\/@[\w.-]+\/video\/(\d+)/,
+    url:m => 'https://www.tiktok.com/embed/v2/' + m[1] },
+
+  { name:'Facebook', ratio:0.78, cat:'graphics',
+    test:/facebook\.com\/[^?#]+\/(?:posts|videos)\/[\w.-]+/,
+    url:(m,raw) => 'https://www.facebook.com/plugins/post.php?href=' +
+                   encodeURIComponent(raw.split('?')[0]) + '&show_text=true&width=500' },
+
+  { name:'SoundCloud', ratio:1.60, cat:'music',
+    test:/soundcloud\.com\/[\w-]+\/[\w-]+/,
+    url:(m,raw) => 'https://w.soundcloud.com/player/?url=' +
+                   encodeURIComponent(raw.split('?')[0]) +
+                   '&color=%23628141&visual=true&hide_related=true' },
+
+  { name:'Behance', ratio:16/9, cat:'graphics',
+    test:/behance\.net\/gallery\/(\d+)/,
+    url:m => 'https://www.behance.net/embed/project/' + m[1] },
+
+  { name:'Figma', ratio:16/9, cat:'presentations',
+    test:/figma\.com\/(?:file|proto|design|board)\//,
+    url:(m,raw) => 'https://www.figma.com/embed?embed_host=share&url=' +
+                   encodeURIComponent(raw) },
+];
+
+function resolveEmbed(raw){
+  const url = raw.trim();
+  const y = ytId(url);      if(y)  return { type:'youtube', src:y,  aspect:16/9,   cat:'video',   name:'YouTube' };
+  const v = vimeoId(url);   if(v)  return { type:'vimeo',   src:v,  aspect:16/9,   cat:'video',   name:'Vimeo' };
+  const sp = spotifyPath(url);
+  if(sp){
+    const pod = /^(episode|show)\//.test(sp);
+    return { type:'spotify', src:sp, aspect:16/9, cat: pod ? 'podcast' : 'music', name:'Spotify' };
+  }
+  for(const e of EMBEDS){
+    const m = url.match(e.test);
+    if(m) return { type:'embed', src:e.url(m, url), aspect:e.ratio, cat:e.cat, name:e.name };
+  }
+  return null;
+}
+
+/* Re-encode an image to WebP at web size. PNG in, WebP out — usually a
+   10-20x saving on flat graphic work, with alpha preserved.
+   Falls back to the original if the conversion somehow comes out bigger. */
+const MAX_W = 2400, QUALITY = .85;
+function optimise(file){
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, MAX_W / img.naturalWidth);
+      const c = document.createElement('canvas');
+      c.width  = Math.round(img.naturalWidth  * scale);
+      c.height = Math.round(img.naturalHeight * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => {
+        URL.revokeObjectURL(url);
+        if(!b || b.size >= file.size) return resolve(null);   // keep the original
+        resolve({ blob:b, ext:'webp', w:c.width, h:c.height });
+      }, 'image/webp', QUALITY);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
+/* Natural dimensions of an image, so the tile can take its shape */
+function imageAspect(file){
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img.naturalWidth / img.naturalHeight); };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+
+/* Grab a frame ~1s in, for the grid thumbnail */
+function capturePoster(file){
+  return new Promise(resolve => {
+    const v = document.createElement('video');
+    v.preload = 'metadata'; v.muted = true; v.playsInline = true;
+    v.src = URL.createObjectURL(file);
+    const bail = setTimeout(() => resolve(null), 8000);
+    v.onloadeddata = () => { v.currentTime = Math.min(1, (v.duration||2) * .25); };
+    v.onseeked = () => {
+      clearTimeout(bail);
+      const ratio = (v.videoWidth && v.videoHeight) ? v.videoWidth / v.videoHeight : 16/9;
+      const c = document.createElement('canvas');
+      c.width = 1920;
+      c.height = Math.round(1920 / ratio);
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+      c.toBlob(b => { URL.revokeObjectURL(v.src); resolve({ blob:b, aspect:ratio }); }, 'image/jpeg', .92);
+    };
+    v.onerror = () => { clearTimeout(bail); resolve(null); };
+  });
+}
+
+/* ---------- adding ---------- */
+/* Build one slide from a dropped file, measuring and compressing it */
+async function makeSlide(f){
+  const isVideo = f.type.startsWith('video');
+  const sl = {
+    type: isVideo ? 'video' : 'image',
+    blob: f,
+    fileExt: ext(f.name),
+    posterBlob: null,
+    aspect: null,
+    optBlob: null,
+    optimise: true
+  };
+  if(isVideo){
+    const cap = await capturePoster(f);
+    if(cap){ sl.posterBlob = cap.blob; sl.aspect = cap.aspect; }
+  }else{
+    sl.aspect = await imageAspect(f);
+    const o = await optimise(f);
+    if(o){ sl.optBlob = o.blob; sl.optW = o.w; sl.optH = o.h; }
+  }
+  return sl;
+}
+
+function newItem(name, isVideo){
+  return {
+    id: uid(),
+    title: name.replace(/\.[^.]+$/,''),
+    year: String(new Date().getFullYear()),
+    categories: isVideo ? ['video'] : ['graphics'],
+    slides: []
+  };
+}
+
+/* Dropping several files at once: one piece with pages, or separate pieces */
+async function addFiles(files, intoId){
+  const list = [...files];
+  if(!list.length) return;
+
+  if(intoId){
+    const it = items.find(x => x.id === intoId);
+    if(!it) return;
+    for(const f of list){ it.slides.push(await makeSlide(f)); render(); save(); }
+    return;
+  }
+
+  let asSet = false;
+  if(list.length > 1){
+    asSet = confirm(
+      list.length + ' files.\n\n' +
+      'OK — add as ONE piece with ' + list.length + ' pages (a magazine, a carousel, a set of variants).\n' +
+      'Cancel — add as ' + list.length + ' separate pieces.'
+    );
+  }
+
+  if(asSet){
+    const it = newItem(list[0].name, list[0].type.startsWith('video'));
+    items.push(it); render();
+    for(const f of list){ it.slides.push(await makeSlide(f)); render(); save(); }
+  }else{
+    for(const f of list){
+      const it = newItem(f.name, f.type.startsWith('video'));
+      items.push(it); render();
+      it.slides.push(await makeSlide(f));
+      render(); save();
+    }
+  }
+  save();
+}
+
+function addLink(){
+  const url = prompt('Paste a link — YouTube, Vimeo, Spotify, Instagram, TikTok,\nFacebook, SoundCloud, Behance, or Figma');
+  if(!url) return;
+  const r = resolveEmbed(url);
+  if(!r){
+    alert("That link is not one of the supported platforms.\n\nYouTube, Vimeo, Spotify, Instagram, TikTok, Facebook,\nSoundCloud, Behance, Figma.");
+    return;
+  }
+  items.push({
+    id: uid(),
+    title: 'Untitled',
+    year: String(new Date().getFullYear()),
+    categories: [r.cat],
+    slides: [{
+      type: r.type,
+      src: r.src,
+      blob: null, posterBlob: null, optBlob: null,
+      aspect: r.aspect
+    }]
+  });
+  render(); save();
+}
+
+/* ---------- render ---------- */
+const $list = document.getElementById('list');
+const pageInput = document.getElementById('pagefile');
+const coverInput = document.getElementById('coverfile');
+
+function previewSrc(sl){
+  if(sl.posterBlob) return URL.createObjectURL(sl.posterBlob);
+  if(sl.optBlob)    return URL.createObjectURL(sl.optBlob);
+  if(sl.type === 'image' && sl.blob) return URL.createObjectURL(sl.blob);
+  if(sl.type === 'youtube') return 'https://i.ytimg.com/vi/' + sl.src + '/maxresdefault.jpg';
+  return '';
+}
+
+function shapeOf(sl){
+  if(!sl.aspect) return 'measuring…';
+  const w = sl.aspect > 1.2 ? 'landscape' : sl.aspect < 0.85 ? 'portrait' : 'square';
+  return w + ' · ' + sl.aspect.toFixed(2) + ':1';
+}
+
+function render(){
+  document.getElementById('count').textContent = items.length ? '(' + items.length + ')' : '';
+  $list.innerHTML = '';
+
+  if(!items.length){
+    $list.innerHTML = '<p class="lede">Nothing added yet. Drop a file above to start. ' +
+      'Drop several at once to build a piece with pages.</p>';
+    document.getElementById('out').textContent = JSON.stringify({ works: [] }, null, 2);
+    return;
+  }
+
+  items.forEach((it, i) => {
+    if(!Array.isArray(it.slides)) it.slides = [];
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.draggable = true;
+
+    const first = it.slides[0];
+    const src = first ? previewSrc(first) : '';
+
+    row.innerHTML =
+      (src ? '<img class="thumb" src="' + src + '">'
+           : '<div class="thumb" style="display:grid;place-items:center;opacity:.5;font-size:13px">no preview</div>') +
+      '<div class="fields">' +
+        '<div class="pair">' +
+          '<label class="f">Title<input data-k="title" value="' + esc(it.title) + '"></label>' +
+          '<label class="f" style="max-width:110px">Year<input data-k="year" value="' + esc(it.year||'') + '"></label>' +
+        '</div>' +
+        '<div class="cats"></div>' +
+        '<div class="pages"></div>' +
+        '<div class="path"></div>' +
+      '</div>' +
+      '<div class="side">' +
+        '<div class="handle" title="Drag to reorder">⣿</div>' +
+        '<button class="pill sm ghost" data-a="pages">Add pages</button>' +
+        (first && !first.blob
+          ? '<button class="pill sm ghost" data-a="cover">' +
+            (first.posterBlob ? 'Change cover' : 'Add cover') + '</button>' : '') +
+        '<button class="pill sm ghost" data-a="up">Move up</button>' +
+        '<button class="pill sm ghost" data-a="down">Move down</button>' +
+        '<button class="pill sm ghost" data-a="del">Remove</button>' +
+      '</div>';
+
+    /* categories */
+    const cats = row.querySelector('.cats');
+    CATEGORIES.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'pill sm' + (it.categories.includes(c.id) ? ' on' : ' ghost');
+      b.textContent = c.label;
+      b.onclick = () => {
+        const k = it.categories.indexOf(c.id);
+        k > -1 ? it.categories.splice(k,1) : it.categories.push(c.id);
+        render(); save();
+      };
+      cats.appendChild(b);
+    });
+
+    /* page strip — only meaningful once there is more than one */
+    const strip = row.querySelector('.pages');
+    if(it.slides.length > 1){
+      const head = document.createElement('div');
+      head.className = 'strip-head';
+      head.textContent = it.slides.length + ' pages — first one is the tile';
+      strip.appendChild(head);
+      const wrap = document.createElement('div');
+      wrap.className = 'strip';
+      it.slides.forEach((sl, k) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const ps = previewSrc(sl);
+        cell.innerHTML =
+          (ps ? '<img src="' + ps + '">' : '<div class="ph"></div>') +
+          '<span class="n">' + (k+1) + '</span>' +
+          '<div class="cellbar">' +
+            '<button title="Move left">‹</button>' +
+            '<button title="Remove page">×</button>' +
+            '<button title="Move right">›</button>' +
+          '</div>';
+        const [L, X, R] = cell.querySelectorAll('.cellbar button');
+        L.onclick = () => { if(k>0){ [it.slides[k-1],it.slides[k]]=[it.slides[k],it.slides[k-1]]; render(); save(); } };
+        R.onclick = () => { if(k<it.slides.length-1){ [it.slides[k+1],it.slides[k]]=[it.slides[k],it.slides[k+1]]; render(); save(); } };
+        X.onclick = () => { it.slides.splice(k,1); render(); save(); };
+        wrap.appendChild(cell);
+      });
+      strip.appendChild(wrap);
+    }
+
+    /* size + shape readout */
+    const p = row.querySelector('.path');
+    if(!first){ p.textContent = 'no media yet'; }
+    else if(first.blob){
+      const totalIn  = it.slides.reduce((a,sl)=>a+(sl.blob?sl.blob.size:0),0);
+      const totalOut = it.slides.reduce((a,sl)=>a+(sl.blob?outputOf(sl).blob.size:0),0);
+      const saved = totalIn ? Math.round((1 - totalOut/totalIn) * 100) : 0;
+      p.innerHTML =
+        'exports as <code>' + MEDIA_DIR + '/' + slideName(it,0) + '.' + outputOf(first).ext + '</code>' +
+        (it.slides.length > 1 ? ' … <code>' + slideName(it, it.slides.length-1) + '</code>' : '') +
+        '<br>' + shapeOf(first) +
+        '<br>' + mb(totalIn) + ' &rarr; <b>' + mb(totalOut) + '</b>' +
+        (saved > 0 ? ', ' + saved + '% smaller' : '') +
+        (totalOut > 20*1048576 ? ' <span class="warn">— large for git, consider a video link</span>' : '');
+    }else{
+      p.innerHTML = first.type + ' &middot; <code>' + first.src + '</code><br>' + shapeOf(first) +
+        (first.posterBlob
+          ? '<br>cover exports as <code>' + MEDIA_DIR + '/' + slideName(it,0) +
+            '-poster.' + (first.posterExt || 'jpg') + '</code> &middot; ' + mb(first.posterBlob.size)
+          : '<br><span class="warn">no cover &mdash; the tile shows the placeholder</span>');
+    }
+
+    /* inputs */
+    row.querySelectorAll('input').forEach(inp => {
+      inp.oninput = () => { it[inp.dataset.k] = inp.value; save(); refreshOut(); };
+      inp.onblur = render;
+    });
+
+    /* side buttons */
+    row.querySelectorAll('[data-a]').forEach(b => {
+      b.onclick = () => {
+        const a = b.dataset.a;
+        if(a === 'pages'){ pageInput.dataset.into = it.id; pageInput.click(); return; }
+        if(a === 'cover'){ coverInput.dataset.into = it.id; coverInput.click(); return; }
+        if(a === 'del'){ items.splice(i,1); }
+        if(a === 'up' && i > 0){ [items[i-1], items[i]] = [items[i], items[i-1]]; }
+        if(a === 'down' && i < items.length-1){ [items[i+1], items[i]] = [items[i], items[i+1]]; }
+        render(); save();
+      };
+    });
+
+    /* row reordering */
+    row.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); row.classList.add('drag'); });
+    row.addEventListener('dragend',   () => row.classList.remove('drag'));
+    row.addEventListener('dragover',  e => e.preventDefault());
+    row.addEventListener('drop', e => {
+      e.preventDefault(); e.stopPropagation();
+      const from = +e.dataTransfer.getData('text/plain');
+      if(Number.isNaN(from) || from === i) return;
+      const [moved] = items.splice(from,1);
+      items.splice(i,0,moved);
+      render(); save();
+    });
+
+    $list.appendChild(row);
+  });
+
+  refreshOut();
+}
+
+const esc = s => String(s||'').replace(/"/g,'&quot;');
+
+/* Which blob and extension a slide exports as */
+function outputOf(sl){
+  if(sl.optBlob && sl.optimise) return { blob: sl.optBlob, ext: 'webp' };
+  return { blob: sl.blob, ext: sl.fileExt };
+}
+const mb = b => (b/1048576).toFixed(b < 1048576 ? 2 : 1) + ' MB';
+const pad = n => String(n).padStart(2,'0');
+
+/* Single-slide pieces keep a clean name. Sets get numbered pages. */
+function slideName(it, k){
+  const base = slug(it.title);
+  return it.slides.length > 1 ? base + '-' + pad(k + 1) : base;
+}
+
+function slidePath(it, sl, k){
+  if(sl.blob) return MEDIA_DIR + '/' + slideName(it, k) + '.' + outputOf(sl).ext;
+  return sl.src;                                   // a hosted video id
+}
+function posterPath(it, sl, k){
+  if(sl.posterBlob) return MEDIA_DIR + '/' + slideName(it, k) + '-poster.' + (sl.posterExt || 'jpg');
+  if(sl.type === 'image' && sl.blob) return slidePath(it, sl, k);
+  return undefined;
+}
+
+function manifest(){
+  return {
+    works: items.map((it, i) => {
+      const slides = it.slides.map((sl, k) => {
+        const o = { type: sl.type, src: slidePath(it, sl, k) };
+        const p = posterPath(it, sl, k);
+        if(p) o.poster = p;
+        o.aspect = sl.aspect ? Math.round(sl.aspect * 10000) / 10000 : null;
+        return o;
+      });
+      const first = slides[0] || {};
+      if(!slides.length) console.warn('Piece "' + it.title + '" has no media.');
+      const out = {
+        id: it.id,
+        title: it.title,
+        year: it.year,
+        categories: it.categories,
+        type: first.type,
+        src: first.src,
+        aspect: first.aspect,
+        order: i + 1
+      };
+      if(first.poster) out.poster = first.poster;
+      if(slides.length > 1) out.slides = slides;   // only when it's a real set
+      return out;
+    })
+  };
+}
+function refreshOut(){
+  document.getElementById('out').textContent = JSON.stringify(manifest(), null, 2);
+}
+
+/* ---------- exports ---------- */
+function download(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+document.getElementById('exportJson').onclick = () =>
+  download(new Blob([JSON.stringify(manifest(), null, 2)], { type:'application/json' }), 'works.json');
+
+document.getElementById('exportMedia').onclick = async () => {
+  const jobs = [];
+  items.forEach(it => it.slides.forEach((sl, k) => {
+    if(!sl.blob){
+      /* a hosted embed with an uploaded cover still has one file to save */
+      if(sl.posterBlob)
+        jobs.push([sl.posterBlob, slideName(it, k) + '-poster.' + (sl.posterExt || 'jpg')]);
+      return;
+    }
+    const out = outputOf(sl);
+    jobs.push([out.blob, slideName(it, k) + '.' + out.ext]);
+    if(sl.posterBlob) jobs.push([sl.posterBlob, slideName(it, k) + '-poster.' + (sl.posterExt || 'jpg')]);
+  }));
+  if(!jobs.length){ alert('No uploaded files to save — hosted video links do not need any.'); return; }
+  for(const [blob, name] of jobs){
+    download(blob, name);
+    await new Promise(r => setTimeout(r, 400));
+  }
+};
+
+document.getElementById('clear').onclick = () => {
+  if(confirm('Remove every piece from this browser? Exported files are unaffected.')){
+    items = []; render(); save();
+  }
+};
+
+/* ---------- input wiring ---------- */
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('file');
+document.getElementById('pick').onclick = () => fileInput.click();
+document.getElementById('addLink').onclick = addLink;
+fileInput.onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+
+/* A cover is the tile image for a piece whose media lives on another
+   platform — a Spotify episode, an Instagram post. Compressed like any other
+   image. The slide keeps the player's own ratio; the tile takes the cover's,
+   which the site measures for itself. */
+coverInput.onchange = async e => {
+  const f = e.target.files && e.target.files[0];
+  const it = items.find(x => x.id === coverInput.dataset.into);
+  coverInput.dataset.into = ''; e.target.value = '';
+  if(!f || !it || !it.slides.length) return;
+
+  const sl = it.slides[0];
+  const o = await optimise(f);
+  sl.posterBlob = o ? o.blob : f;
+  sl.posterExt  = o ? 'webp' : (ext(f.name) || 'jpg');
+  render(); save();
+};
+
+pageInput.onchange = e => {
+  addFiles(e.target.files, pageInput.dataset.into);
+  pageInput.dataset.into = '';
+  e.target.value = '';
+};
+
+['dragenter','dragover'].forEach(ev =>
+  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('hot'); }));
+['dragleave','drop'].forEach(ev =>
+  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('hot'); }));
+drop.addEventListener('drop', e => { if(e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+restore();
+</script>
+
+</body>
+</html>
