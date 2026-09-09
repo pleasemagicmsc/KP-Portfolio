@@ -343,6 +343,157 @@
       "aspect": 1.7778,
       "order": 14,
       "poster": "Assets/principles-of-scaling-zoom-podcast-poster.webp"
+    },
+    {
+      "id": "w_bqhnyak",
+      "title": "UBE Media - Presentation Deck",
+      "year": "2025",
+      "categories": [
+        "graphics",
+        "branding",
+        "presentations"
+      ],
+      "type": "image",
+      "src": "Assets/ube-media-presentation-deck-01.webp",
+      "aspect": 1.7778,
+      "order": 15,
+      "poster": "Assets/ube-media-presentation-deck-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/ube-media-presentation-deck-01.webp",
+          "poster": "Assets/ube-media-presentation-deck-01.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-presentation-deck-02.webp",
+          "poster": "Assets/ube-media-presentation-deck-02.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-presentation-deck-03.webp",
+          "poster": "Assets/ube-media-presentation-deck-03.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-presentation-deck-04.webp",
+          "poster": "Assets/ube-media-presentation-deck-04.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-presentation-deck-05.webp",
+          "poster": "Assets/ube-media-presentation-deck-05.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-presentation-deck-06.webp",
+          "poster": "Assets/ube-media-presentation-deck-06.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/ube-media-presentation-deck-07.webp",
+          "poster": "Assets/ube-media-presentation-deck-07.webp",
+          "aspect": 1.7778
+        }
+      ]
+    },
+    {
+      "id": "w_lxc6la9",
+      "title": "OneLGC - Presentation Deck",
+      "year": "2025",
+      "categories": [
+        "graphics",
+        "branding",
+        "presentations"
+      ],
+      "type": "image",
+      "src": "Assets/onelgc-presentation-deck-01.webp",
+      "aspect": 1.7778,
+      "order": 16,
+      "poster": "Assets/onelgc-presentation-deck-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/onelgc-presentation-deck-01.webp",
+          "poster": "Assets/onelgc-presentation-deck-01.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/onelgc-presentation-deck-02.webp",
+          "poster": "Assets/onelgc-presentation-deck-02.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/onelgc-presentation-deck-03.webp",
+          "poster": "Assets/onelgc-presentation-deck-03.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/onelgc-presentation-deck-04.webp",
+          "poster": "Assets/onelgc-presentation-deck-04.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/onelgc-presentation-deck-05.webp",
+          "poster": "Assets/onelgc-presentation-deck-05.webp",
+          "aspect": 1.7778
+        },
+        {
+          "type": "image",
+          "src": "Assets/onelgc-presentation-deck-06.webp",
+          "poster": "Assets/onelgc-presentation-deck-06.webp",
+          "aspect": 1.7778
+        }
+      ]
+    },
+    {
+      "id": "w_73fz03u",
+      "title": "NMM - Custom Jargon 101",
+      "year": "2025",
+      "categories": [
+        "graphics"
+      ],
+      "type": "image",
+      "src": "Assets/nmm-custom-jargon-101-01.webp",
+      "aspect": 1,
+      "order": 17,
+      "poster": "Assets/nmm-custom-jargon-101-01.webp",
+      "slides": [
+        {
+          "type": "image",
+          "src": "Assets/nmm-custom-jargon-101-01.webp",
+          "poster": "Assets/nmm-custom-jargon-101-01.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/nmm-custom-jargon-101-02.webp",
+          "poster": "Assets/nmm-custom-jargon-101-02.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/nmm-custom-jargon-101-03.webp",
+          "poster": "Assets/nmm-custom-jargon-101-03.webp",
+          "aspect": 1
+        },
+        {
+          "type": "image",
+          "src": "Assets/nmm-custom-jargon-101-04.webp",
+          "poster": "Assets/nmm-custom-jargon-101-04.webp",
+          "aspect": 1
+        }
+      ]
     }
   ]
 }
