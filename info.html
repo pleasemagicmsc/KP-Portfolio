@@ -561,10 +561,10 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 <div class="curtain" id="curtain" aria-hidden="true"></div>
 
 <footer class="infobar">
-  <span>Manila 31&deg;</span><span class="sep">|</span>
+  <span id="wxManila">Manila</span><span class="sep">|</span>
+  <span id="wxLaguna">Laguna</span><span class="sep">|</span>
   <span>Keril Priola</span><span class="sep">|</span>
-  <span class="quiet">Multimedia &amp; Marketing</span><span class="sep">|</span>
-  <a href="mailto:priolakerilm@gmail.com">priolakerilm@gmail.com</a>
+  <span class="quiet">Multimedia &amp; Marketing</span>
 </footer>
 
 <script>
@@ -813,6 +813,36 @@ function initCollapsible(box){
 })();
 
 
+
+
+/* ---------- Live temperature ----------
+   Open-Meteo: no key, no sign-up, CORS open, free for this kind of use.
+   Both cities come back in a single request. If it fails the labels simply
+   stay as plain city names — better a missing number than a wrong one. */
+(function(){
+  const targets = [
+    { el: document.getElementById('wxManila'), name: 'Manila', lat: 14.5995, lon: 120.9842 },
+    { el: document.getElementById('wxLaguna'), name: 'Laguna', lat: 14.2833, lon: 121.4167 }
+  ].filter(t => t.el);
+  if(!targets.length) return;
+
+  const url = 'https://api.open-meteo.com/v1/forecast'
+            + '?latitude='  + targets.map(t => t.lat).join(',')
+            + '&longitude=' + targets.map(t => t.lon).join(',')
+            + '&current=temperature_2m&timezone=Asia%2FManila';
+
+  fetch(url, { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(data => {
+      /* one location comes back as an object, several as an array */
+      const rows = Array.isArray(data) ? data : [data];
+      targets.forEach((t, i) => {
+        const c = rows[i] && rows[i].current && rows[i].current.temperature_2m;
+        if(typeof c === 'number') t.el.textContent = t.name + ' ' + Math.round(c) + '\u00B0';
+      });
+    })
+    .catch(() => {});
+})();
 
 </script>
 
